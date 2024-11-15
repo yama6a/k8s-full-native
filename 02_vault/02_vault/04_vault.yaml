@@ -1,0 +1,106 @@
+# Vault Custom Resource to deploy Vault using the Bank-Vaults Operator
+
+apiVersion: vault.banzaicloud.com/v1alpha1
+kind: Vault
+metadata:
+  name: vault  # Name of the Vault instance
+  namespace: sys-vault  # Namespace where Vault is deployed
+spec:
+  size: 3  # Replicas
+  image: hashicorp/vault:1.18.1
+  bankVaultsImage: ghcr.io/bank-vaults/bank-vaults:v1.31.2
+  serviceAccount: vault-instance
+  serviceType: ClusterIP
+
+  serviceRegistrationEnabled: false
+  serviceMonitorEnabled: false
+  veleroEnabled: false # todo: install velero and set to true (for backups)
+
+  # Describe where you would like to store the Vault unseal keys and root token.
+  unsealConfig:
+    options:
+      preFlightChecks: true # enables unseal and root token storage tests
+      storeRootToken: true # enables storing of root token in chosen storage
+    kubernetes:
+      secretNamespace: sys-vault # namespace where the secret is stored
+
+  # Pods, Services and TLS Secret labels
+#  vaultLabels:
+#    app.kubernetes.io/name: vault-instance
+#    app.kubernetes.io/managed-by: vault-operator
+#    app.kubernetes.io/part-of: vault
+#    app.example.com/domain: platform
+#    app.example.com/team: team-sre
+#
+#  vaultConfigurerLabels:
+#    app.kubernetes.io/name: vault-configurer
+#    app.kubernetes.io/managed-by: vault-operator
+#    app.kubernetes.io/part-of: vault
+#    app.example.com/domain: platform
+#    app.example.com/team: team-sre
+
+  resources:
+    vault:
+      limits:
+        memory: "512Mi"
+        cpu: "200m"
+      requests:
+        memory: "128Mi"
+        cpu: "100m"
+
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        # Anti-affinity based on Region
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchLabels:
+                app.kubernetes.io/name: vault-instance
+            topologyKey: topology.kubernetes.io/region
+        # Anti-affinity based on Zone
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchLabels:
+                app.kubernetes.io/name: vault-instance
+            topologyKey: topology.kubernetes.io/zone
+        # Anti-affinity based on Node
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchLabels:
+                app.kubernetes.io/name: vault-instance
+            topologyKey: kubernetes.io/hostname
+
+  volumeClaimTemplates:
+    - metadata:
+        name: vault-raft
+      spec:
+        # https://kubernetes.io/docs/concepts/storage/persistent-volumes/#class-1
+        storageClassName: default-storage # defined in separate storageClass yaml manifest in the operator folder
+        accessModes:
+          - ReadWriteOnce
+        volumeMode: Filesystem
+        resources:
+          requests:
+            storage: 1Gi
+
+  volumeMounts:
+    - name: vault-raft
+      mountPath: /vault/filestore
+
+  config:
+    ui: true  # Enable the Vault UI
+    storage:
+      raft:
+        path: /vault/filestore  # Path for Raft storage
+    listener:
+      tcp:
+        address: "0.0.0.0:8200"
+        tls_cert_file: /vault/tls/server.crt
+        tls_key_file: /vault/tls/server.key
+    api_addr: https://vault.sys-vault.svc.cluster.local:8200
+    cluster_addr: "https://${.Env.POD_NAME}:8201"
+    telemetry:
+      unauthenticated_metrics_access: true

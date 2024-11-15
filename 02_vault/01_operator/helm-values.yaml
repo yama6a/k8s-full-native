@@ -1,0 +1,95 @@
+replicaCount: 3 # -- Number of replicas (pods) to launch.
+
+pdb: # pod disruption budget (set to true if replicaCount > 1)
+  create: true
+  minAvailable: 1
+  # maxUnavailable: 1
+
+image:
+  repository: ghcr.io/bank-vaults/vault-operator
+  pullPolicy: IfNotPresent
+  tag: "v1.22.3"
+
+bankVaults:
+  image:
+    repository: ghcr.io/bank-vaults/bank-vaults
+    tag: "v1.31.2"
+
+watchNamespace: "" # If not defined all namespaces are watched.
+syncPeriod: "1m"
+
+labels: # -- Labels to be added to deployments.
+  app.kubernetes.io/name: vault-operator
+  app.kubernetes.io/managed-by: helm
+  app.kubernetes.io/part-of: vault
+  app.example.com/domain: platform
+  app.example.com/team: team-sre
+
+podLabels: { } # Labels to be added to pods (ToDo: Check if labels above are applied to pods. If not, copy them here.)
+
+serviceAccount:
+  create: true
+  name: "vault-operator"
+
+service:
+  type: ClusterIP
+  name: "vault-operator"
+  externalPort: 80
+  internalPort: 8080
+
+resources:
+  # -- ignored?
+  limits:
+    cpu: 100m
+    memory: 128Mi
+  # -- ignored?
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+# -- [Affinity](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity) configuration.
+# See the [API reference](https://kubernetes.io/docs/reference/kubernetes-api/workload-resources/pod-v1/#scheduling) for details.
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      # Anti-affinity based on Region
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: vault-operator
+          topologyKey: topology.kubernetes.io/region
+      # Anti-affinity based on Zone
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: vault-operator
+          topologyKey: topology.kubernetes.io/zone
+      # Anti-affinity based on Node
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: vault-operator
+          topologyKey: kubernetes.io/hostname
+
+terminationGracePeriodSeconds: 10
+
+livenessProbe:
+  initialDelaySeconds: 60
+  periodSeconds: 10
+  successThreshold: 1
+  timeoutSeconds: 1
+readinessProbe:
+  periodSeconds: 10
+  successThreshold: 1
+  timeoutSeconds: 1
+
+psp:
+  enabled: false
+  vaultSA: "vault"
+
+monitoring:
+  serviceMonitor:
+    enabled: false
