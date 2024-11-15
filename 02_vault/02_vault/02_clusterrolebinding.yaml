@@ -1,0 +1,14 @@
+# to allow Vault to verify k8s SA-JWTs (services will present their JWT to fetch secrets)
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: vault-auth-delegator  # Name of the ClusterRoleBinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:auth-delegator  # Grant TokenReview permissions
+subjects:
+  - kind: ServiceAccount
+    name: vault-instance  # Name of the ServiceAccount
+    namespace: sys-vault  # Namespace of the ServiceAccount
