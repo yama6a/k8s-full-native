@@ -10,6 +10,14 @@ image:
   pullPolicy: IfNotPresent
   tag: "v1.22.3"
 
+resources: # -- ignored?
+  limits:
+    cpu: 100m
+    memory: 128Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
 bankVaults:
   image:
     repository: ghcr.io/bank-vaults/bank-vaults
@@ -36,16 +44,6 @@ service:
   name: "vault-operator"
   externalPort: 80
   internalPort: 8080
-
-resources:
-  # -- ignored?
-  limits:
-    cpu: 100m
-    memory: 128Mi
-  # -- ignored?
-  requests:
-    cpu: 100m
-    memory: 128Mi
 
 # -- [Affinity](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity) configuration.
 # See the [API reference](https://kubernetes.io/docs/reference/kubernetes-api/workload-resources/pod-v1/#scheduling) for details.
@@ -93,3 +91,9 @@ psp:
 monitoring:
   serviceMonitor:
     enabled: false
+
+podSecurityContext:
+  runAsNonRoot: true
+
+securityContext:
+  allowPrivilegeEscalation: false
