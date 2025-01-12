@@ -1,7 +1,4 @@
-# vault-operator-namespace.yaml
-# Create a namespace for the application
-
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: sys-vault  # Name of the namespace
+  name: sys-vault

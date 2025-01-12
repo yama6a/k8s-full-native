@@ -15,6 +15,6 @@ minikube unpause || minikube start \
 --disk-size=350g \
 --delete-on-failure=true \
 --driver=docker \
---kubernetes-version=v1.31.0 \
+--kubernetes-version=v1.31.4 \
 --memory=8192 \
 --subnet=172.17.128.0/17
