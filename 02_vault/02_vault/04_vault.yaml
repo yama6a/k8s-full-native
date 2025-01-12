@@ -78,7 +78,7 @@ spec:
         name: vault-raft
       spec:
         # https://kubernetes.io/docs/concepts/storage/persistent-volumes/#class-1
-        storageClassName: default-storage # defined in separate storageClass yaml manifest in the operator folder
+        storageClassName: vault-storage # defined in separate storageClass yaml manifest in the operator folder
         accessModes:
           - ReadWriteOnce
         volumeMode: Filesystem
@@ -98,7 +98,7 @@ spec:
     listener:
       tcp:
         address: "0.0.0.0:8200"
-        tls_disable: true # disabling TLS, we'll use Istio instead, to make things cleaner (skip cert generation, etc.)
+        tls_disable: true # disabling TLS, we'll use a service mesh instead, to make things cleaner (skip cert generation, etc.)
         #tls_cert_file: /vault/tls/server.crt
         #tls_key_file: /vault/tls/server.key
     api_addr: http://vault.sys-vault.svc.cluster.local:8200
