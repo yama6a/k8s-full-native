@@ -109,37 +109,37 @@ spec:
 
   externalConfig:
     policies:
-      - name: allow_shared_secrets
+      - name: allow_any_sa_secrets
         rules: |
-          path "shared/*" {
+          path "allow_any_sa/*" {
             capabilities = ["read", "list"]
           }
 
       - name: allow_namespaced_secrets
         rules: |
-          path "namespaces/data/{{identity.entity.aliases.${ accessor `kubernetes/` }.metadata.service_account_namespace}}/*" {
+          path "allow_any_sa_in_single_namespace/data/{{identity.entity.aliases.${ accessor `kubernetes/` }.metadata.service_account_namespace}}/*" {
             capabilities = ["read", "list"]
           }
 
       - name: allow_serviceaccount_secrets
         rules: |
-          path "serviceaccounts/data/{{identity.entity.aliases.${ accessor `kubernetes/` }.metadata.service_account_name}}/*" {
+          path "allow_single_serviceaccount/data/{{identity.entity.aliases.${ accessor `kubernetes/` }.metadata.service_account_name}}/*" {
             capabilities = ["read", "list"]
           }
 
     secrets:
       # Globally accessible by any SA
-      - path: shared
+      - path: allow_any_sa
         type: kv
         options:
           version: 2
       # Accessible by SAs in the same namespace as the respective secret
-      - path: namespaces
+      - path: allow_any_sa_in_single_namespace
         type: kv
         options:
           version: 2
       # Accessible by service accounts with the path prefix named after the SA's name
-      - path: serviceaccounts
+      - path: allow_single_serviceaccount
         type: kv
         options:
           version: 2
@@ -151,5 +151,5 @@ spec:
           - name: default
             bound_service_account_names: ["*"]
             bound_service_account_namespaces: ["*"]
-            policies: ["allow_shared_secrets", "allow_namespaced_secrets", "allow_serviceaccount_secrets"]
+            policies: ["allow_any_sa_secrets", "allow_namespaced_secrets", "allow_serviceaccount_secrets"]
             ttl: 1h
