@@ -21,7 +21,7 @@ spec:
     options:
       preFlightChecks: true # enables unseal and root token storage tests
       storeRootToken: true # enables storing of root token in chosen storage
-    kubernetes:
+    kubernetes: # todo: rbac deny reading this secret except by bank vault operator? (k get secret/vault-unseal-keys -n sys-vault -o json)
       secretNamespace: sys-vault # namespace where the secret is stored
 
   # Pods, Services and TLS Secret labels
@@ -78,7 +78,7 @@ spec:
         name: vault-raft
       spec:
         # https://kubernetes.io/docs/concepts/storage/persistent-volumes/#class-1
-        storageClassName: default-storage # defined in separate storageClass yaml manifest in the operator folder
+        storageClassName: vault-storage # defined in separate storageClass yaml manifest in the operator folder
         accessModes:
           - ReadWriteOnce
         volumeMode: Filesystem
@@ -98,9 +98,58 @@ spec:
     listener:
       tcp:
         address: "0.0.0.0:8200"
-        tls_cert_file: /vault/tls/server.crt
-        tls_key_file: /vault/tls/server.key
-    api_addr: https://vault.sys-vault.svc.cluster.local:8200
-    cluster_addr: "https://${.Env.POD_NAME}:8201"
+        tls_disable: true # disabling TLS, we'll use a service mesh instead, to make things cleaner (skip cert generation, etc.)
+        #tls_cert_file: /vault/tls/server.crt
+        #tls_key_file: /vault/tls/server.key
+    api_addr: http://vault.sys-vault.svc.cluster.local:8200
+    cluster_addr: "http://${.Env.POD_NAME}:8201"
     telemetry:
       unauthenticated_metrics_access: true
+
+
+  externalConfig:
+    policies:
+      - name: allow_any_sa_secrets
+        rules: |
+          path "allow_any_sa/*" {
+            capabilities = ["read", "list"]
+          }
+
+      - name: allow_namespaced_secrets
+        rules: |
+          path "allow_any_sa_in_single_namespace/data/{{identity.entity.aliases.${ accessor `kubernetes/` }.metadata.service_account_namespace}}/*" {
+            capabilities = ["read", "list"]
+          }
+
+      - name: allow_serviceaccount_secrets
+        rules: |
+          path "allow_single_serviceaccount/data/{{identity.entity.aliases.${ accessor `kubernetes/` }.metadata.service_account_name}}/*" {
+            capabilities = ["read", "list"]
+          }
+
+    secrets:
+      # Globally accessible by any SA
+      - path: allow_any_sa
+        type: kv
+        options:
+          version: 2
+      # Accessible by SAs in the same namespace as the respective secret
+      - path: allow_any_sa_in_single_namespace
+        type: kv
+        options:
+          version: 2
+      # Accessible by service accounts with the path prefix named after the SA's name
+      - path: allow_single_serviceaccount
+        type: kv
+        options:
+          version: 2
+
+    auth:
+      - type: kubernetes
+        roles:
+          # Allow every pod in the default namespace to use the secret kv store
+          - name: default
+            bound_service_account_names: ["*"]
+            bound_service_account_namespaces: ["*"]
+            policies: ["allow_any_sa_secrets", "allow_namespaced_secrets", "allow_serviceaccount_secrets"]
+            ttl: 1h
