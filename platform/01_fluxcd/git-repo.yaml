@@ -5,7 +5,7 @@ metadata:
   namespace: sys-fluxcd
 spec:
   interval: 1m
-  url: "https://github.com/your-org/your-repo.git"
+  url: "https://github.com/yama6a/k8s-full-native.git"
   ref:
     branch: fluxcd
   secretRef:
