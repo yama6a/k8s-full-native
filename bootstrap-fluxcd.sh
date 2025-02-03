@@ -15,7 +15,7 @@ fi
 set -ux
 
 # Install sealed secrets controller (needed for FluxCD's secret containing the github API key)
-# More sophisticated config will be applied once FluxCD takes over (see platform/02_sealed_secrets/helm-release.yaml)
+# More sophisticated config will be applied once FluxCD takes over (see flux-apps/platform/02_sealed_secrets/helm-release.yaml)
 # Todo: renovate the versions below as well as the ones in the helm-release.yaml
 helm repo add sealed-secrets https://bitnami-labs.github.io/sealed-secrets
 helm repo update sealed-secrets
@@ -40,10 +40,10 @@ fi;
 set -x
 
 # Create Sealed Secret (replace GITHUB token with yours from the environment)
-sed "s/GITHUB_API_KEY/$GITHUB_API_KEY/g" ./bootstrap-github-api-secret-template.yaml | kubeseal --controller-namespace sys-sealed-secrets --format yaml > platform/01_fluxcd/sealedsecret.yaml
+sed "s/GITHUB_API_KEY/$GITHUB_API_KEY/g" ./bootstrap-github-api-secret-template.yaml | kubeseal --controller-namespace sys-sealed-secrets --format yaml > flux-apps/platform/01_fluxcd/sealedsecret.yaml
 
 # https://artifacthub.io/packages/helm/fluxcd-community/flux2
-# More sophisticated config will be applied once FluxCD takes over (see platform/01_fluxcd/helm-release.yaml)
+# More sophisticated config will be applied once FluxCD takes over (see flux-apps/platform/01_fluxcd/helm-release.yaml)
 # Todo: renovate the versions below as well as the ones in the helm-release.yaml
 helm repo add fluxcd https://fluxcd-community.github.io/helm-charts
 helm repo update fluxcd
@@ -58,6 +58,7 @@ helm install fluxcd fluxcd/flux2 \
 --set-string notificationController.tag="v1.4.0" \
 --set-string sourceController.tag="v1.4.1"
 
-kubectl apply -f platform/01_fluxcd/sealedsecret.yaml
+kubectl apply -f ./flux-apps/platform/01_fluxcd/sealedsecret.yaml
 sleep 5; # wait for sealed secret to be created
-kubectl apply -f platform/01_fluxcd/git-repo.yaml
+kubectl apply -f ./flux-apps/platform/01_fluxcd/git-repo.yaml
+kubectl apply -f ./root-kustomization.yaml

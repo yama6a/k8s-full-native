@@ -5,7 +5,7 @@ metadata:
   namespace: sys-fluxcd
 spec:
   interval: 10m
-  path: "/platform/01_fluxcd/"
+  path: "/flux-apps/platform/01_fluxcd/"
   prune: true
   sourceRef:
     kind: GitRepository

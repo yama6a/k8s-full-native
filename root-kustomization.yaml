@@ -1,0 +1,13 @@
+# This file must be applied manually, after the GitRepository resource is created, so that Flux starts syncing the repository contents.
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: platform
+  namespace: sys-fluxcd
+spec:
+  interval: 1m
+  path: "/flux-apps"       # relative path from the repository root
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: my-cluster       # must match the name of your GitRepository resource
