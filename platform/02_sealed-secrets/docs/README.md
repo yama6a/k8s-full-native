@@ -7,13 +7,13 @@ Resource Definition.
 
 ## Basic Usage (For Developers)
 
-1. Create a SealedSecret manifest (see [example](./resources/example_sealedsecret_manifest.yaml))
+1. Create a SealedSecret manifest (see [example](example_sealedsecret_manifest.yaml))
 2. Create a key under `spec.encryptedData.<your-key>` in the manifest
 3. Encrypt a raw value using the [kubeseal](https://github.com/bitnami-labs/sealed-secrets#kubeseal) CLI tool. This
    sends the raw string to the cluster, which encrypts it using the private key and returns the encrypted value.:
 
     ```bash
-    echo "some-password" | kubeseal --controller-namespace=sys-sealed-secrets --scope=namespace-wide -n my-app-namespace --raw
+     echo "some-password" | kubeseal --controller-namespace=sys-sealed-secrets --scope=namespace-wide -n my-app-namespace --raw
     ```
 4. Copy the output and paste it into the value, e.g.:
 

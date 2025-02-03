@@ -1,0 +1,181 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: fluxcd
+  namespace: sys-fluxcd
+spec:
+  releaseName: fluxcd
+  chart:
+    spec:
+      chart: flux2
+      version: "0.34.0"  # Adjust to your desired Flux version.
+      sourceRef:
+        kind: HelmRepository
+        name: fluxcd
+        namespace: sys-fluxcd
+  interval: 5m
+  values:
+    clusterDomain: cluster.local
+
+    policies:
+      create: true
+
+    rbac:
+      create: true
+      createAggregation: true # -- Grant the Kubernetes view, edit and admin roles access to Flux custom resources
+      roleRef:
+        name: cluster-admin
+
+    logLevel: info
+    watchAllNamespaces: true
+
+    imagePullSecrets: [ ]
+    extraObjects: [ ]
+    # Example usage from https://fluxcd.io/docs/components/source/buckets/#static-authentication
+    # - apiVersion: v1
+    #   kind: Secret
+    #   metadata:
+    #     name: minio-credentials
+    #     namespace: default
+    #   type: Opaque
+    #   data:
+    #     accesskey: <BASE64>
+    #     secretkey: <BASE64>
+
+    # Enables podMonitor creation for the Prometheus Operator
+    prometheus:
+      podMonitor:
+        # -- Enables podMonitor endpoint
+        create: true
+        podMetricsEndpoints:
+          - port: http-prom
+            relabelings:
+              # https://github.com/prometheus-operator/prometheus-operator/issues/4816
+              - sourceLabels: [ __meta_kubernetes_pod_phase ]
+                action: keep
+                regex: Running
+
+    cli:
+      image: ghcr.io/fluxcd/flux-cli
+      tag: v2.4.0
+      serviceAccount:
+        automount: true
+      affinity: &affinity
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            # Anti-affinity based on Region
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/name: vault-operator
+                topologyKey: topology.kubernetes.io/region
+            # Anti-affinity based on Zone
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/name: vault-operator
+                topologyKey: topology.kubernetes.io/zone
+            # Anti-affinity based on Node
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/name: vault-operator
+                topologyKey: kubernetes.io/hostname
+
+
+    ## CONTROLLERS
+
+
+    helmController:
+      create: true
+      image: ghcr.io/fluxcd/helm-controller
+      tag: v1.1.0
+      affinity: *affinity
+      serviceAccount:
+        create: true
+        automount: true
+      resources:
+        limits:
+          memory: 1Gi
+        requests:
+          cpu: 100m
+          memory: 64Mi
+
+    imageAutomationController:
+      create: true
+      image: ghcr.io/fluxcd/image-automation-controller
+      tag: v0.39.0
+      affinity: *affinity
+      serviceAccount:
+        create: true
+        automount: true
+      resources:
+        limits:
+          memory: 1Gi
+        requests:
+          cpu: 100m
+          memory: 64Mi
+
+    imageReflectionController:
+      create: true
+      image: ghcr.io/fluxcd/image-reflector-controller
+      tag: v0.33.0
+      affinity: *affinity
+      serviceAccount:
+        create: true
+        automount: true
+      resources:
+        limits:
+          memory: 1Gi
+        requests:
+          cpu: 100m
+          memory: 64Mi
+
+    kustomizeController:
+      create: true
+      image: ghcr.io/fluxcd/kustomize-controller
+      tag: v1.4.0
+      affinity: *affinity
+      serviceAccount:
+        create: true
+        automount: true
+      resources:
+        limits:
+          memory: 1Gi
+        requests:
+          cpu: 100m
+          memory: 64Mi
+
+    notificationController:
+      create: true
+      image: ghcr.io/fluxcd/notification-controller
+      tag: v1.4.0
+      affinity: *affinity
+      serviceAccount:
+        create: true
+        automount: true
+      resources:
+        limits:
+          memory: 1Gi
+        requests:
+          cpu: 100m
+          memory: 64Mi
+
+    sourceController:
+      create: true
+      image: ghcr.io/fluxcd/source-controller
+      tag: v1.4.1
+      affinity: *affinity
+      serviceAccount:
+        create: true
+        automount: true
+      resources:
+        limits:
+          memory: 1Gi
+        requests:
+          cpu: 100m
+          memory: 64Mi
+
