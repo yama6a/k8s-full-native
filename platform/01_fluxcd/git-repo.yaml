@@ -9,4 +9,4 @@ spec:
   ref:
     branch: fluxcd
   secretRef:
-    name: github-access
+    name: github-api-key

@@ -12,7 +12,7 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: sealed-secrets
-        namespace: sys-flux
+        namespace: sys-sealed-secrets
   interval: 5m
   values:
     namespace: "sys-sealed-secrets"
@@ -20,7 +20,7 @@ spec:
     image: # https://hub.docker.com/r/bitnami/sealed-secrets-controller/tags
       registry: docker.io
       repository: bitnami/sealed-secrets-controller
-      tag: 0.27.3
+      tag: 0.28.0
 
     logInfoStdout: true # whether to log info-logs to stdout
     logLevel: "INFO" # (INFO,ERROR)
