@@ -6,7 +6,7 @@ set -eo pipefail
 # If env variable GITHUB_API_KEY is not set, error and exit
 if [ -z "${GITHUB_API_KEY}" ]; then
   echo "environment variable GITHUB_API_KEY is not set. Please call this script like:"
-  echo "    GITHUB_API_KEY=yourkey ./bootstrap-fluxcd.sh"
+  echo "    GITHUB_API_KEY=yourkey; ./bootstrap-fluxcd.sh"
   echo "(with a leading space to avoid storing the key in bash history)"
   exit 1
 fi
