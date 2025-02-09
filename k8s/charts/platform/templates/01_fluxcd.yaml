@@ -27,7 +27,7 @@ spec:
         kustomize_controller: "v1.4.0"
         notification_controller: "v1.4.0"
         source_controller: "v1.4.1"
-    {{- else if eq .Values.env "staging" }}
+    {{- else if eq .Values.env "stage" }}
       versions:
         fluxcd: "2.14.1"
         cli: "v2.4.0"
@@ -38,5 +38,5 @@ spec:
         notification_controller: "v1.4.0"
         source_controller: "v1.4.1"
     {{- else }}
-    {{- fail "The env value must be either 'prod' or 'staging'" }}
+    {{- fail "The env value must be either 'prod' or 'stage'" }}
     {{- end }}

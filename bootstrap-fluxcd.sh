@@ -58,7 +58,7 @@ helm install fluxcd fluxcd/flux2 \
 --set-string notificationController.tag="v1.4.0" \
 --set-string sourceController.tag="v1.4.1"
 
-kubectl apply -f ./flux-apps/platform/01_fluxcd/sealedsecret.yaml
+kubectl apply -f ./k8s/charts/platform/charts/01_fluxcd/templates/sealedsecret.yaml
 sleep 5; # wait for sealed secret to be created
-kubectl apply -f ./flux-apps/platform/01_fluxcd/git-repo.yaml
-kubectl apply -f ./root-kustomization.yaml
+kubectl apply -f ./k8s/charts/platform/charts/01_fluxcd/templates/git-repo.yaml
+kubectl apply -f ./k8s/HelmRelease-prod.yaml
