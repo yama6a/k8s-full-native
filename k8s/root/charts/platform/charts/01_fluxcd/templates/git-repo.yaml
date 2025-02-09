@@ -9,4 +9,4 @@ spec:
   ref:
     branch: fluxcd
   secretRef:
-    name: github-api-key
+    name: github-api-key {{ .Values.env }}

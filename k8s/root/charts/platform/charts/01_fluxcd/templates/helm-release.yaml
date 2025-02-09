@@ -8,12 +8,15 @@ spec:
   chart:
     spec:
       chart: flux2
-      version: "2.14.1"  # Adjust to your desired Flux version.
+      version: {{ .Values.versions.fluxcd }}
       sourceRef:
         kind: HelmRepository
         name: fluxcd
         namespace: sys-fluxcd
   interval: 5m
+  dependsOn:
+    - name: fluxcd-parent
+      namespace: sys-fluxcd
   values:
     clusterDomain: cluster.local
 
@@ -57,42 +60,15 @@ spec:
 
     cli:
       image: ghcr.io/fluxcd/flux-cli
-      tag: v2.4.0
-      affinity: &affinity
-        podAntiAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-            # Anti-affinity based on Region
-            - weight: 100
-              podAffinityTerm:
-                labelSelector:
-                  matchLabels:
-                    app.kubernetes.io/name: vault-operator
-                topologyKey: topology.kubernetes.io/region
-            # Anti-affinity based on Zone
-            - weight: 100
-              podAffinityTerm:
-                labelSelector:
-                  matchLabels:
-                    app.kubernetes.io/name: vault-operator
-                topologyKey: topology.kubernetes.io/zone
-            # Anti-affinity based on Node
-            - weight: 100
-              podAffinityTerm:
-                labelSelector:
-                  matchLabels:
-                    app.kubernetes.io/name: vault-operator
-                topologyKey: kubernetes.io/hostname
+      tag: {{ .Values.versions.cli }}
 
 
     ## CONTROLLERS
-
-
     helmController:
       create: true
       image: ghcr.io/fluxcd/helm-controller
-      tag: v1.1.0
-      affinity: *affinity
-      resources:
+      tag: {{ .Values.versions.helm_controller }}
+      resources: &resources
         limits:
           memory: 1Gi
         requests:
@@ -102,60 +78,30 @@ spec:
     imageAutomationController:
       create: true
       image: ghcr.io/fluxcd/image-automation-controller
-      tag: v0.39.0
-      affinity: *affinity
-      resources:
-        limits:
-          memory: 1Gi
-        requests:
-          cpu: 100m
-          memory: 64Mi
+      tag: {{ .Values.versions.image_automation_controller }}
+      resources: *resources
 
     imageReflectionController:
       create: true
       image: ghcr.io/fluxcd/image-reflector-controller
-      tag: v0.33.0
-      affinity: *affinity
-      resources:
-        limits:
-          memory: 1Gi
-        requests:
-          cpu: 100m
-          memory: 64Mi
+      tag: {{ .Values.versions.image_reflection_controller }}
+      resources: *resources
 
     kustomizeController:
       create: true
       image: ghcr.io/fluxcd/kustomize-controller
-      tag: v1.4.0
-      affinity: *affinity
-      resources:
-        limits:
-          memory: 1Gi
-        requests:
-          cpu: 100m
-          memory: 64Mi
+      tag: {{ .Values.versions.kustomize_controller }}
+      resources: *resources
 
     notificationController:
       create: true
       image: ghcr.io/fluxcd/notification-controller
-      tag: v1.4.0
-      affinity: *affinity
-      resources:
-        limits:
-          memory: 1Gi
-        requests:
-          cpu: 100m
-          memory: 64Mi
+      tag: {{ .Values.versions.notification_controller }}
+      resources: *resources
 
     sourceController:
       create: true
       image: ghcr.io/fluxcd/source-controller
-      tag: v1.4.1
-      affinity: *affinity
-      resources:
-        limits:
-          memory: 1Gi
-        requests:
-          cpu: 100m
-          memory: 64Mi
+      tag: {{ .Values.versions.source_controller }}
+      resources: *resources
 
