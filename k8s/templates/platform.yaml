@@ -17,3 +17,10 @@ spec:
         namespace: sys-fluxcd
   values:
     env: {{ .Values.env }}
+    {{- if eq .Values.env "prod" }}
+    foo: bar
+    {{- else if eq .Values.env "stage" }}
+    foo: baz
+    {{- else }}
+    {{- fail "The env value must be either 'prod' or 'stage'" }}
+    {{- end }}
