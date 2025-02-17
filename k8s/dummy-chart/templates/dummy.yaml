@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: sys-dummy2
+  labels:
+    linkerd.io/inject: "enabled"
+    foo: dummy
+    env: {{ .Values.env }}

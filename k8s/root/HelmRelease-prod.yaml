@@ -7,10 +7,10 @@ spec:
   interval: 1m
   chart:
     spec:
-      chart: ./k8s
+      chart: ./k8s/root
       sourceRef:
         kind: GitRepository
         name: my-cluster
         namespace: sys-fluxcd
   values:
-    env: stage
+    env: prod
