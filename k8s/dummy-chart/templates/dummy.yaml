@@ -10,6 +10,6 @@ metadata:
 spec:
   containers:
     - name: sys-dummy-ctr
-      image: "nginx-alpine"
+      image: "nginx:alpine"
       ports:
       - containerPort: 80
