@@ -1,4 +1,0 @@
-# Root Helm Chart
-apiVersion: v2
-name: Dummy Chart
-version: 0.0.1

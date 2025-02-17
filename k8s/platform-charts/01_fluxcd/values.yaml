@@ -8,5 +8,3 @@ versions:
   kustomize_controller: "v1.4.0"
   notification_controller: "v1.4.0"
   source_controller: "v1.4.1"
-
-

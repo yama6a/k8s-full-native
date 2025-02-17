@@ -10,7 +10,7 @@ spec:
       namespace: sys-fluxcd
   chart:
     spec:
-      chart: ./k8s-platform
+      chart: ./k8s/platform-root
       sourceRef:
         kind: GitRepository
         name: my-cluster
