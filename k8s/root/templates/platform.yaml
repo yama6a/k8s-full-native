@@ -2,19 +2,19 @@ apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
   name: platform
-  namespace: sys-fluxcd
+  namespace: flux-system
 spec:
   interval: 1m
   dependsOn:
     - name: root
-      namespace: sys-fluxcd
+      namespace: flux-system
   chart:
     spec:
       chart: ./k8s/platform-root
       sourceRef:
         kind: GitRepository
         name: my-cluster
-        namespace: sys-fluxcd
+        namespace: flux-system
   values:
     env: {{ .Values.env }}
     {{- if eq .Values.env "prod" }}

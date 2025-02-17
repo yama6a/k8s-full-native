@@ -36,5 +36,5 @@ Resource Definition.
 5. Apply the manifest:
 
     ```bash
-    kubectl apply -f my-sealedsecret.yaml
+    kubectl apply -f my-gh-api-key-sealedsecret.yaml
     ```

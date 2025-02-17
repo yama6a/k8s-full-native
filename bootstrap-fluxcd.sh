@@ -48,7 +48,7 @@ sed "s/GITHUB_API_KEY/$GITHUB_API_KEY/g" ./bootstrap-github-api-secret-template.
 helm repo add fluxcd https://fluxcd-community.github.io/helm-charts
 helm repo update fluxcd
 helm install fluxcd fluxcd/flux2 \
---namespace sys-fluxcd --create-namespace \
+--namespace flux-system --create-namespace \
 --version 2.14.1 \
 --set-string cli.tag="v2.4.0" \
 --set-string helmController.tag="v1.1.0" \
