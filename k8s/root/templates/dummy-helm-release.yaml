@@ -11,6 +11,6 @@ spec:
       sourceRef:
         kind: GitRepository
         name: my-cluster
-        namespace: sys-dummy
+        namespace: sys-fluxcd
   values:
     env: {{ .Values.env }}
