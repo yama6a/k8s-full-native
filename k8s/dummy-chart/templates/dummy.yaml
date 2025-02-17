@@ -1,8 +1,15 @@
 apiVersion: v1
-kind: Namespace
+kind: Pod
 metadata:
   name: sys-dummy2
+  namespace: sys-dummy
   labels:
     linkerd.io/inject: "enabled"
     foo: dummy
     env: {{ .Values.env }}
+spec:
+  containers:
+    - name: sys-dummy-ctr
+      image: "nginx-alpine"
+      ports:
+      - containerPort: 80

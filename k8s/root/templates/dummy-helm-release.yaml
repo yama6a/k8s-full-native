@@ -1,0 +1,16 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: root
+  namespace: sys-dummy
+spec:
+  interval: 1m
+  chart:
+    spec:
+      chart: ./k8s/dummy-chart
+      sourceRef:
+        kind: GitRepository
+        name: my-cluster
+        namespace: sys-dummy
+  values:
+    env: {{ .Values.env }}
