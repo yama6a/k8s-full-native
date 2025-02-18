@@ -1,0 +1,9 @@
+versions:
+  fluxcd: "2.14.1"
+  cli: "v2.4.0"
+  helm_controller: "v1.1.0"
+  image_automation_controller: "v0.39.0"
+  image_reflection_controller: "v0.33.0"
+  kustomize_controller: "v1.4.0"
+  notification_controller: "v1.4.0"
+  source_controller: "v1.4.1"

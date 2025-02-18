@@ -1,0 +1,27 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: platform
+  namespace: flux-system
+spec:
+  interval: 10s
+  maxHistory: 1
+  dependsOn:
+    - name: root
+      namespace: flux-system
+  chart:
+    spec:
+      chart: ./k8s/platform-root
+      sourceRef:
+        kind: GitRepository
+        name: my-cluster
+        namespace: flux-system
+  values:
+    env: {{ .Values.env }}
+    {{- if eq .Values.env "prod" }}
+    foo: bar
+    {{- else if eq .Values.env "stage" }}
+    foo: baz
+    {{- else }}
+    {{- fail "The env value must be either 'prod' or 'stage'" }}
+    {{- end }}

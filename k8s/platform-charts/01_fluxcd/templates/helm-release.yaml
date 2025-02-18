@@ -1,0 +1,94 @@
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: HelmRepository
+metadata:
+  name: fluxcd
+  namespace: flux-system
+spec:
+  url: https://fluxcd-community.github.io/helm-charts
+  interval: 1h
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: fluxcd
+  namespace: flux-system
+spec:
+  interval: 1m
+  maxHistory: 1
+  driftDetection:
+    mode: enabled
+  chart:
+    spec:
+      chart: flux2
+      version: {{ .Values.versions.fluxcd }}
+      sourceRef:
+        kind: HelmRepository
+        name: fluxcd
+  dependsOn:
+    - name: fluxcd-parent
+      namespace: flux-system
+  values:
+    clusterDomain: cluster.local
+
+    policies:
+      create: true
+
+    rbac:
+      create: true
+      createAggregation: true # -- Grant the Kubernetes view, edit and admin roles access to Flux custom resources
+      roleRef:
+        name: cluster-admin
+
+    logLevel: info
+    watchAllNamespaces: true
+
+    imagePullSecrets: [ ]
+    extraObjects: [ ]
+
+    cli:
+      image: ghcr.io/fluxcd/flux-cli
+      tag: {{ .Values.versions.cli }}
+
+
+    ## CONTROLLERS
+    helmController:
+      create: true
+      image: ghcr.io/fluxcd/helm-controller
+      tag: {{ .Values.versions.helm_controller }}
+      resources: &resources
+        limits:
+          memory: 1Gi
+        requests:
+          cpu: 100m
+          memory: 64Mi
+
+    imageAutomationController:
+      create: true
+      image: ghcr.io/fluxcd/image-automation-controller
+      tag: {{ .Values.versions.image_automation_controller }}
+      resources: *resources
+
+    imageReflectionController:
+      create: true
+      image: ghcr.io/fluxcd/image-reflector-controller
+      tag: {{ .Values.versions.image_reflection_controller }}
+      resources: *resources
+
+    kustomizeController:
+      create: true
+      image: ghcr.io/fluxcd/kustomize-controller
+      tag: {{ .Values.versions.kustomize_controller }}
+      resources: *resources
+
+    notificationController:
+      create: true
+      image: ghcr.io/fluxcd/notification-controller
+      tag: {{ .Values.versions.notification_controller }}
+      resources: *resources
+
+    sourceController:
+      create: true
+      image: ghcr.io/fluxcd/source-controller
+      tag: {{ .Values.versions.source_controller }}
+      resources: *resources
+
