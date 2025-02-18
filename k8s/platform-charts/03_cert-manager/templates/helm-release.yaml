@@ -29,6 +29,8 @@ spec:
         name: cert-manager
         namespace: sys-cert-manager
   values:
+    nameOverride: "cert-manager"
+    fullnameOverride: "cert-manager"
     replicaCount: 1 # uses leader election to ensure that there can only be a single instance active at a time.
     affinity: { }
     podDisruptionBudget:
