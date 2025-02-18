@@ -5,14 +5,14 @@ metadata:
   labels:
     linkerd.io/inject: "enabled"
 ---
-apiVersion: helm.toolkit.fluxcd.io/v2beta1
+apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
   name: fluxcd-parent
   namespace: flux-system
 spec:
   interval: 10s
-  revisionHistoryLimit: 1
+  maxHistory: 1
   dependsOn:
     - name: platform
       namespace: flux-system

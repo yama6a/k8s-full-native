@@ -1,11 +1,11 @@
-apiVersion: helm.toolkit.fluxcd.io/v2beta1
+apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
   name: platform
   namespace: flux-system
 spec:
   interval: 10s
-  revisionHistoryLimit: 1
+  maxHistory: 1
   dependsOn:
     - name: root
       namespace: flux-system
