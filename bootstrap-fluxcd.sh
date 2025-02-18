@@ -19,6 +19,8 @@ set -ux
 # Todo: renovate the versions below as well as the ones in the helm-release.yaml
 helm repo add sealed-secrets https://bitnami-labs.github.io/sealed-secrets
 helm repo update sealed-secrets
+# "sealed-secrets-controller" must match the spec.releaseName in k8s/platform-charts/02_sealed_secrets/helm-release.yaml
+# to ensure that the Sealed Secrets helm-chart is overridden by the flux-managed one and sealed-secrets is thus managed by flux in the end.
 helm install sealed-secrets-controller sealed-secrets/sealed-secrets \
 --namespace sys-sealed-secrets --create-namespace \
 --version 2.17.1 \
@@ -47,6 +49,8 @@ sed "s/GITHUB_API_KEY/$GITHUB_API_KEY/g" ./bootstrap-github-api-secret-template.
 # Todo: renovate the versions below as well as the ones in the helm-release.yaml
 helm repo add fluxcd https://fluxcd-community.github.io/helm-charts
 helm repo update fluxcd
+# "fluxcd" must match the spec.releaseName in k8s/platform-charts/01_fluxcd/helm-release.yaml
+# to ensure that the Flux helm-chart is overridden by the flux-managed one and flux is thus managed by itself in the end.
 helm install fluxcd fluxcd/flux2 \
 --namespace flux-system --create-namespace \
 --version 2.14.1 \
