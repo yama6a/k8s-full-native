@@ -55,6 +55,9 @@ spec:
       create: true
       image: ghcr.io/fluxcd/helm-controller
       tag: {{ .Values.versions.helm_controller }}
+      container:
+        additionalArgs:
+          - "--log-level=debug"
       resources: &resources
         limits:
           memory: 1Gi
