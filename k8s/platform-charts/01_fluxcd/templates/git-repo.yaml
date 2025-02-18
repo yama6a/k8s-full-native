@@ -4,7 +4,7 @@ metadata:
   name: my-cluster
   namespace: flux-system
 spec:
-  interval: 1m
+  interval: 10s
   url: "https://github.com/yama6a/k8s-full-native.git"
   ref:
     branch: fluxcd
