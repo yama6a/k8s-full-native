@@ -4,6 +4,8 @@ metadata:
   name: sealed-secrets
   namespace: sys-sealed-secrets
 spec:
+  interval: 1m
+  revisionHistoryLimit: 1
   releaseName: sealed-secrets
   chart:
     spec:
@@ -13,7 +15,6 @@ spec:
         kind: HelmRepository
         name: sealed-secrets
         namespace: sys-sealed-secrets
-  interval: 5m
   values:
     namespace: "sys-sealed-secrets"
 

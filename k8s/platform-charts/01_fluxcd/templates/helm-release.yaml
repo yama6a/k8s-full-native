@@ -14,7 +14,7 @@ metadata:
   namespace: flux-system
 spec:
   interval: 1m
-  revisionHistoryLimit: 0
+  revisionHistoryLimit: 1
   releaseName: fluxcd
   chart:
     spec:

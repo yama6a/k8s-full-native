@@ -12,7 +12,7 @@ metadata:
   namespace: flux-system
 spec:
   interval: 10s
-  revisionHistoryLimit: 0
+  revisionHistoryLimit: 1
   dependsOn:
     - name: platform
       namespace: flux-system
