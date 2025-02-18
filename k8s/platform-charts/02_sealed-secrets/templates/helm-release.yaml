@@ -15,7 +15,8 @@ metadata:
 spec:
   interval: 10s
   maxHistory: 1
-  releaseName: sealed-secrets-controller
+  driftDetection:
+    mode: enabled
   chart:
     spec:
       chart: sealed-secrets

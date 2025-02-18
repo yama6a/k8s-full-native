@@ -15,7 +15,8 @@ metadata:
 spec:
   interval: 1m
   maxHistory: 1
-  releaseName: fluxcd
+  driftDetection:
+    mode: enabled
   chart:
     spec:
       chart: flux2

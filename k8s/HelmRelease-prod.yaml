@@ -6,6 +6,8 @@ metadata:
 spec:
   interval: 10s
   maxHistory: 1
+  driftDetection:
+    mode: enabled
   chart:
     spec:
       chart: ./k8s/root
