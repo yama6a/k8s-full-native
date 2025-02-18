@@ -40,7 +40,7 @@ fi;
 set -x
 
 # Create Sealed Secret (replace GITHUB token with yours from the environment)
-sed "s/GITHUB_API_KEY/$GITHUB_API_KEY/g" ./bootstrap-github-api-secret-template.yaml | kubeseal --controller-namespace sys-sealed-secrets --format yaml > k8s/platform-charts/01_fluxcd/templates/sealedsecret.yaml
+sed "s/GITHUB_API_KEY/$GITHUB_API_KEY/g" ./bootstrap-github-api-secret-template.yaml | kubeseal --controller-namespace sys-sealed-secrets --format yaml > k8s/platform-charts/01_fluxcd/templates/gh-api-key-sealedsecret.yaml
 
 # https://artifacthub.io/packages/helm/fluxcd-community/flux2
 # More sophisticated config will be applied once FluxCD takes over (see flux-apps/platform/01_fluxcd/helm-release.yaml)
@@ -58,7 +58,7 @@ helm install fluxcd fluxcd/flux2 \
 --set-string notificationController.tag="v1.4.0" \
 --set-string sourceController.tag="v1.4.1"
 
-kubectl apply -f ./k8s/platform-charts/01_fluxcd/templates/sealedsecret.yaml
+kubectl apply -f ./k8s/platform-charts/01_fluxcd/templates/gh-api-key-sealedsecret.yaml
 sleep 5; # wait for sealed secret to be created
 kubectl apply -f ./k8s/platform-charts/01_fluxcd/templates/git-repo.yaml
 kubectl apply -f ./k8s/HelmRelease-prod.yaml
