@@ -15,7 +15,7 @@ metadata:
 spec:
   interval: 10s
   maxHistory: 1
-  releaseName: sealed-secrets
+  releaseName: sealed-secrets-controller
   chart:
     spec:
       chart: sealed-secrets
