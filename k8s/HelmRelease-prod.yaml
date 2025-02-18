@@ -5,6 +5,7 @@ metadata:
   namespace: flux-system
 spec:
   interval: 10s
+  revisionHistoryLimit: 0
   chart:
     spec:
       chart: ./k8s/root
