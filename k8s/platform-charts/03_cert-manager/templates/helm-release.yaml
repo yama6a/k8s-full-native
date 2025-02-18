@@ -1,0 +1,59 @@
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: HelmRepository
+metadata:
+  name: cert-manager
+  namespace: sys-cert-manager
+spec:
+  url: https://charts.jetstack.io
+  interval: 10s
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: cert-manager
+  namespace: sys-cert-manager
+spec:
+  interval: 10s
+  maxHistory: 1
+  driftDetection:
+    mode: enabled
+  dependsOn:
+    - name: platform
+      namespace: flux-system
+  chart:
+    spec:
+      chart: cert-manager
+      version: {{ .Values.version }}
+      sourceRef:
+        kind: HelmRepository
+        name: cert-manager
+        namespace: sys-cert-manager
+  values:
+    replicaCount: 1 # uses leader election to ensure that there can only be a single instance active at a time.
+    affinity: { }
+    podDisruptionBudget:
+      enabled: false
+      # minAvailable: 1
+      # maxUnavailable: 1
+
+    crds:
+      enabled: true
+      keep: false # "false" --> auto-remove CRDs (and related CRs) when the helm-chart is uninstalled
+
+    webhook:
+      replicaCount: 1
+      affinity: { }
+      podDisruptionBudget:
+        enabled: false
+        # minAvailable: 1
+        # maxUnavailable: 1
+
+    cainjector:
+      # Create the CA Injector deployment
+      enabled: true
+      replicaCount: 1
+      affinity: { }
+      podDisruptionBudget:
+        enabled: false
+        # minAvailable: 1
+        # maxUnavailable: 1
