@@ -1,0 +1,119 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: linkerd
+  labels:
+    linkerd.io/inject: "enabled"
+---
+# Create a self‑signed Issuer that issues the CA certificate for the trust anchor
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: selfsigned
+  namespace: linkerd
+spec:
+  selfSigned: {}
+---
+# Create a trust anchor (CA) Certificate that stores its output in secret linkerd-trust-anchor
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: linkerd-trust-anchor
+  namespace: linkerd
+spec:
+  secretName: linkerd-trust-anchor
+  commonName: root.linkerd.cluster.local
+  isCA: true
+  duration: 87600h # 10y (make it 30y?)
+  issuerRef:
+    name: selfsigned
+    kind: Issuer
+---
+# Create a CA Issuer referencing the trust anchor secret (issues certificates signed by the CA trust anchor cert)
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: linkerd-ca-issuer
+  namespace: linkerd
+spec:
+  ca:
+    secretName: linkerd-trust-anchor
+---
+# Create an identity issuer Certificate using the CA Issuer (used by linkerd to create and sign mTLS certs, e.g.  for the sidecars)
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: linkerd-identity-issuer
+  namespace: linkerd
+spec:
+  secretName: linkerd-identity-issuer
+  duration: 48h
+  renewBefore: 25h
+  issuerRef:
+    name: linkerd-ca-issuer
+    kind: Issuer
+  commonName: identity.linkerd.cluster.local
+  dnsNames:
+    - identity.linkerd.cluster.local
+  isCA: true
+  privateKey:
+    algorithm: ECDSA
+  usages:
+    - cert sign
+    - crl sign
+    - server auth
+    - client auth
+{{/**
+---
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: HelmRepository
+metadata:
+  name: linkerd
+  namespace: flux-system
+spec:
+  interval: 1h
+  url: https://helm.linkerd.io/stable
+---
+# Create a HelmRelease for linkerd‑crds
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: linkerd-crds
+  namespace: linkerd
+spec:
+  releaseName: linkerd-crds
+  interval: 5m
+  chart:
+    spec:
+      chart: linkerd-crds
+      sourceRef:
+        kind: HelmRepository
+        name: linkerd
+        namespace: flux-system
+---
+# Create a HelmRelease for linkerd‑control‑plane that pulls the trust anchor from the secret
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: linkerd-control-plane
+  namespace: linkerd
+spec:
+  releaseName: linkerd-control-plane
+  interval: 5m
+  chart:
+    spec:
+      chart: linkerd-control-plane
+      sourceRef:
+        kind: HelmRepository
+        name: linkerd
+        namespace: flux-system
+  values:
+    identity:
+      issuer:
+        scheme: kubernetes.io/tls
+  valuesFrom:
+    - kind: Secret
+      name: linkerd-trust-anchor
+      valuesKey: tls.crt
+      target: identityTrustAnchorsPEM
+**/}}
