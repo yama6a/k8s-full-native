@@ -12,6 +12,13 @@ kind: HelmRelease
 metadata:
   name: cert-manager
   namespace: sys-cert-manager
+  annotations:
+    "meta.helm.sh/release-name": "cert-manager"
+    "meta.helm.sh/release-namespace": "sys-cert-manager"
+  labels:
+    "app.kubernetes.io/managed-by": "Helm"
+    "helm.toolkit.fluxcd.io/name": "cert-manager"
+    "helm.toolkit.fluxcd.io/namespace": "sys-cert-manager"
 spec:
   interval: 10s
   maxHistory: 1
