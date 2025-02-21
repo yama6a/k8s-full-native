@@ -6,6 +6,8 @@ metadata:
 spec:
   interval: 10s
   maxHistory: 1
+  driftDetection:
+    mode: enabled
   dependsOn:
     - name: root
       namespace: flux-system
