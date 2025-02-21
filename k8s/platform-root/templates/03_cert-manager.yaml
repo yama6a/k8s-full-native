@@ -8,7 +8,7 @@ metadata:
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: cert-manager
+  name: cert-manager-parent
   namespace: sys-cert-manager
 spec:
   interval: 10s
