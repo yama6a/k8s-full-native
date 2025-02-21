@@ -17,11 +17,9 @@ spec:
   driftDetection:
     mode: enabled
   dependsOn:
-    - name: platform
+    - name: fluxcd # not the parent, but the actual fluxcd helm release
       namespace: flux-system
-    - name: fluxcd-parent
-      namespace: flux-system
-    - name: cert-manager-parent
+    - name: cert-manager # not the parent, but the actual cert-manager helm release (issuer pods need to be up)
       namespace: sys-cert-manager
   chart:
     spec:

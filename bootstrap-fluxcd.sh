@@ -19,9 +19,9 @@ set -ux
 # Todo: renovate the versions below as well as the ones in the helm-release.yaml
 helm repo add sealed-secrets https://bitnami-labs.github.io/sealed-secrets
 helm repo update sealed-secrets
-# "sealed-secrets-controller" must match the spec.releaseName in k8s/platform-charts/02_sealed_secrets/helm-release.yaml
+# "sealed-secrets" must match the metadata.name in k8s/platform-charts/02_sealed_secrets/helm-release.yaml
 # to ensure that the Sealed Secrets helm-chart is overridden by the flux-managed one and sealed-secrets is thus managed by flux in the end.
-helm install sealed-secrets-controller sealed-secrets/sealed-secrets \
+helm install sealed-secrets sealed-secrets/sealed-secrets \
 --namespace sys-sealed-secrets --create-namespace \
 --version 2.17.1 \
 --set-string "image.registry=docker.io" \
@@ -31,7 +31,7 @@ helm install sealed-secrets-controller sealed-secrets/sealed-secrets \
 # Wait for sealed-secrets-controller to be ready
 set +x
 echo "Waiting for sealed-secrets-controller to be ready..."
-i=0; while [ $i -lt 60 ] && [ -z "$(kubectl get endpoints sealed-secrets-controller -n sys-sealed-secrets -o jsonpath='{.subsets[0].addresses[0].ip}' 2>/dev/null)" ]; do
+i=0; while [ $i -lt 60 ] && [ -z "$(kubectl get endpoints sealed-secrets -n sys-sealed-secrets -o jsonpath='{.subsets[0].addresses[0].ip}' 2>/dev/null)" ]; do
   sleep 2;
   i=$((i+1));
 done;
@@ -41,8 +41,15 @@ if [ $i -eq 60 ]; then
 fi;
 set -x
 
+# Todo: backup the sealed-secrets-controller's private key and public key on disk,
+#       and find a way for it to never delete it in the cluster no matter what, even if the HelmRelease is deleted.
+#       And research and document how to recover the cluster's private key from a backup.
+
+
 # Create Sealed Secret (replace GITHUB token with yours from the environment)
-sed "s/GITHUB_API_KEY/$GITHUB_API_KEY/g" ./bootstrap-github-api-secret-template.yaml | kubeseal --controller-namespace sys-sealed-secrets --format yaml > k8s/platform-charts/01_fluxcd/templates/gh-api-key-sealedsecret.yaml
+sed "s/GITHUB_API_KEY/$GITHUB_API_KEY/g" ./bootstrap-github-api-secret-template.yaml \
+    | kubeseal --controller-namespace sys-sealed-secrets --controller-name sealed-secrets --format yaml \
+    > k8s/platform-charts/01_fluxcd/templates/gh-api-key-sealedsecret.yaml
 
 # https://artifacthub.io/packages/helm/fluxcd-community/flux2
 # More sophisticated config will be applied once FluxCD takes over (see flux-apps/platform/01_fluxcd/helm-release.yaml)
