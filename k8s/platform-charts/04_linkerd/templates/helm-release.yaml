@@ -1,0 +1,51 @@
+{{/*apiVersion: source.toolkit.fluxcd.io/v1beta2*/}}
+{{/*kind: HelmRepository*/}}
+{{/*metadata:*/}}
+{{/*  name: linkerd*/}}
+{{/*  namespace: sys-linkerd*/}}
+{{/*spec:*/}}
+{{/*  interval: 1h*/}}
+{{/*  url: https://helm.linkerd.io/stable*/}}
+{{/*---*/}}
+{{/*# Create a HelmRelease for linkerd‑crds*/}}
+{{/*apiVersion: helm.toolkit.fluxcd.io/v2beta1*/}}
+{{/*kind: HelmRelease*/}}
+{{/*metadata:*/}}
+{{/*  name: linkerd-crds*/}}
+{{/*  namespace: sys-linkerd*/}}
+{{/*spec:*/}}
+{{/*  releaseName: linkerd-crds*/}}
+{{/*  interval: 5m*/}}
+{{/*  chart:*/}}
+{{/*    spec:*/}}
+{{/*      chart: linkerd-crds*/}}
+{{/*      sourceRef:*/}}
+{{/*        kind: HelmRepository*/}}
+{{/*        name: linkerd*/}}
+{{/*        namespace: sys-linkerd*/}}
+{{/*---*/}}
+{{/*# Create a HelmRelease for linkerd‑control‑plane that pulls the trust anchor from the secret*/}}
+{{/*apiVersion: helm.toolkit.fluxcd.io/v2beta1*/}}
+{{/*kind: HelmRelease*/}}
+{{/*metadata:*/}}
+{{/*  name: linkerd-control-plane*/}}
+{{/*  namespace: sys-linkerd*/}}
+{{/*spec:*/}}
+{{/*  releaseName: linkerd-control-plane*/}}
+{{/*  interval: 5m*/}}
+{{/*  chart:*/}}
+{{/*    spec:*/}}
+{{/*      chart: linkerd-control-plane*/}}
+{{/*      sourceRef:*/}}
+{{/*        kind: HelmRepository*/}}
+{{/*        name: linkerd*/}}
+{{/*        namespace: sys-linkerd*/}}
+{{/*  values:*/}}
+{{/*    identity:*/}}
+{{/*      issuer:*/}}
+{{/*        scheme: kubernetes.io/tls*/}}
+{{/*  valuesFrom:*/}}
+{{/*    - kind: Secret*/}}
+{{/*      name: linkerd-trust-anchor*/}}
+{{/*      valuesKey: tls.crt*/}}
+{{/*      target: identityTrustAnchorsPEM*/}}
