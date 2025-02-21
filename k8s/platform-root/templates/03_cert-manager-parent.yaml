@@ -18,6 +18,8 @@ spec:
   dependsOn:
     - name: platform
       namespace: flux-system
+    - name: fluxcd-parent
+      namespace: flux-system
   chart:
     spec:
       chart: ./k8s/platform-charts/03_cert-manager
