@@ -1,19 +1,26 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: sys-cert-manager
+  labels:
+    linkerd.io/inject: "enabled"
+---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: platform
-  namespace: flux-system
+  name: cert-manager-parent
+  namespace: sys-cert-manager
 spec:
   interval: 10s
   maxHistory: 1
   driftDetection:
     mode: enabled
   dependsOn:
-    - name: root
+    - name: platform
       namespace: flux-system
   chart:
     spec:
-      chart: ./k8s/platform-root
+      chart: ./k8s/platform-charts/03_cert-manager
       sourceRef:
         kind: GitRepository
         name: my-cluster
@@ -21,9 +28,9 @@ spec:
   values:
     env: {{ .Values.env }}
     {{- if eq .Values.env "prod" }}
-    foo: bar
+    version: "v1.17.1"
     {{- else if eq .Values.env "stage" }}
-    foo: baz
+    version: "v1.17.1"
     {{- else }}
     {{- fail "The env value must be either 'prod' or 'stage'" }}
     {{- end }}
