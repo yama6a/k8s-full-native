@@ -29,11 +29,15 @@ spec:
         name: my-cluster
         namespace: flux-system
   values:
-    env: {{ .Values.env }}
     {{- if eq .Values.env "prod" }}
-    version: "v1.17.1"
+    versions:
+      crdChart: "1.8.0"         # https://artifacthub.io/packages/helm/linkerd2/linkerd-crds
+      linkerdChart: "1.16.11"   # https://artifacthub.io/packages/helm/linkerd2/linkerd-control-plane
+      linkerd: "stable-2.14.10" # https://artifacthub.io/packages/helm/linkerd2/linkerd-control-plane
     {{- else if eq .Values.env "stage" }}
-    version: "v1.17.1"
+      crdChart: "1.8.0"         # https://artifacthub.io/packages/helm/linkerd2/linkerd-crds
+      linkerdChart: "1.16.11"   # https://artifacthub.io/packages/helm/linkerd2/linkerd-control-plane
+      linkerd: "stable-2.14.10" # https://artifacthub.io/packages/helm/linkerd2/linkerd-control-plane
     {{- else }}
     {{- fail "The env value must be either 'prod' or 'stage'" }}
     {{- end }}

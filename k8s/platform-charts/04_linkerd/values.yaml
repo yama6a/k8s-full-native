@@ -1,1 +1,4 @@
-version:
+versions:
+  crdChart:
+  linkerdChart:
+  linkerd:
