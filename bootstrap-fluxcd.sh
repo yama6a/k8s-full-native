@@ -14,6 +14,33 @@ fi
 # Bash strict mode (second half)
 set -ux
 
+# cache required images on host (avoid re-downloading them in minikube saves traffic and time)
+# Todo: renovate the versions below?
+images=(
+  "cr.l5d.io/linkerd/proxy:edge-24.11.8"
+  "cr.l5d.io/linkerd/controller:edge-24.11.8"
+  "cr.l5d.io/linkerd/policy-controller:edge-24.11.8"
+  "cr.l5d.io/linkerd/proxy-init:v2.4.2"
+  "quay.io/jetstack/cert-manager-controller:v1.17.1"
+  "quay.io/jetstack/cert-manager-webhook:v1.17.1"
+  "quay.io/jetstack/cert-manager-cainjector:v1.17.1"
+  "quay.io/jetstack/cert-manager-startupapicheck:v1.17.1"
+  "ghcr.io/fluxcd/source-controller:v1.4.1"
+  "ghcr.io/fluxcd/helm-controller:v1.1.0"
+  "ghcr.io/fluxcd/flux-cli:v2.4.0"
+  "docker.io/bitnami/sealed-secrets-controller:0.28.0"
+  "registry.k8s.io/metrics-server/metrics-server:v0.7.2@sha256:ffcb2bf004d6aa0a17d90e0247cf94f2865c8901dcab4427034c341951c239f9"
+)
+for img in "${images[@]}"; do
+  (
+    if ! docker image inspect "$img" > /dev/null 2>&1; then
+      docker pull "$img"
+    fi
+    minikube image load "$img"
+  ) &
+done
+wait
+
 # Install sealed secrets controller (needed for FluxCD's secret containing the github API key)
 # More sophisticated config will be applied once FluxCD takes over (see flux-apps/platform/02_sealed_secrets/helm-release.yaml)
 # Todo: renovate the versions below as well as the ones in the helm-release.yaml
@@ -63,13 +90,12 @@ helm install fluxcd fluxcd/flux2 \
 --version 2.14.1 \
 --set-string cli.tag="v2.4.0" \
 --set-string helmController.tag="v1.1.0" \
---set-string AutomationController.tag="v0.39.0" \
---set-string ReflectionController.tag="v0.33.0" \
---set-string kustomizeController.tag="v1.4.0" \
---set-string notificationController.tag="v1.4.0" \
---set-string sourceController.tag="v1.4.1"
+--set-string sourceController.tag="v1.4.1" \
+--set imageReflectionController.create=false \
+--set imageAutomationController.create=false \
+--set kustomizeController.create=false \
+--set notificationController.create=false
 
 kubectl apply -f ./k8s/platform-charts/01_fluxcd/templates/gh-api-key-sealedsecret.yaml
-sleep 5; # wait for sealed secret to be created
 kubectl apply -f ./k8s/platform-charts/01_fluxcd/templates/git-repo.yaml
 kubectl apply -f ./k8s/HelmRelease-prod.yaml

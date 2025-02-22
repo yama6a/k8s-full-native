@@ -1,3 +1,3 @@
 apiVersion: v2
-name: Linkerd
-version: 0.0.12
+name: LinkerdParent
+version: 0.0.15
