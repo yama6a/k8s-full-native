@@ -54,7 +54,7 @@ spec:
       valuesKey: tls.crt
       targetPath: identityTrustAnchorsPEM
   values:
-    linkerdVersion: {{ .Values.versions.linkerd | quote }}
+    linkerdVersion: {{ .Values.versions.linkerd }}
     controllerLogLevel: info
     controllerLogFormat: plain
 
