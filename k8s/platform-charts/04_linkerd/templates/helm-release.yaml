@@ -8,7 +8,7 @@ spec:
   url: https://helm.linkerd.io/stable
 ---
 # Create a HelmRelease for linkerd‑crds
-apiVersion: helm.toolkit.fluxcd.io/v2beta1
+apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
   name: linkerd-crds
@@ -26,7 +26,7 @@ spec:
         namespace: sys-linkerd
 ---
 # Create a HelmRelease for linkerd‑control‑plane that pulls the trust anchor from the secret
-apiVersion: helm.toolkit.fluxcd.io/v2beta1
+apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
   name: linkerd-control-plane
