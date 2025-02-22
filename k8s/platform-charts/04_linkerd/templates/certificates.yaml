@@ -17,12 +17,12 @@ spec:
   secretName: linkerd-trust-anchor
   commonName: root.linkerd.cluster.local
   isCA: true
-  duration: 87600h # 10y (make it 30y?)
+  duration: 876000h # 100 years (should never expire - rotation will require downtime or a lot of pain - https://linkerd.io/2-edge/tasks/manually-rotating-control-plane-tls-credentials/#rotating-the-trust-anchor)
   issuerRef:
     name: selfsigned
     kind: Issuer
 ---
-# Create a CA Issuer referencing the trust anchor secret (issues certificates signed by the CA trust anchor cert)
+# CA Issuer referencing the trust anchor secret (issues certificates signed by the CA trust anchor cert)
 apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
@@ -32,7 +32,7 @@ spec:
   ca:
     secretName: linkerd-trust-anchor
 ---
-# Create an identity issuer Certificate using the CA Issuer (used by linkerd to create and sign mTLS certs, e.g.  for the sidecars)
+# Identity Issuer Certificate using the CA Issuer (used by linkerd to create and sign mTLS certs, e.g. for the sidecars)
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:

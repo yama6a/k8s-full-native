@@ -28,7 +28,7 @@ helm install sealed-secrets sealed-secrets/sealed-secrets \
 --set-string image.repository="bitnami/sealed-secrets-controller" \
 --set-string image.tag="0.28.0"
 
-# Wait for sealed-secrets-controller to be ready
+# Wait for sealed-secrets-controller to be ready (we need the CRDs to be installed at least)
 set +x
 echo "Waiting for sealed-secrets-controller to be ready..."
 i=0; while [ $i -lt 60 ] && [ -z "$(kubectl get endpoints sealed-secrets -n sys-sealed-secrets -o jsonpath='{.subsets[0].addresses[0].ip}' 2>/dev/null)" ]; do
