@@ -1,78 +1,78 @@
-{{/*apiVersion: source.toolkit.fluxcd.io/v1beta2*/}}
-{{/*kind: HelmRepository*/}}
-{{/*metadata:*/}}
-{{/*  name: linkerd*/}}
-{{/*  namespace: sys-linkerd*/}}
-{{/*spec:*/}}
-{{/*  interval: 1h*/}}
-{{/*  url: https://helm.linkerd.io/stable*/}}
-{{/*---*/}}
-{{/*# Create a HelmRelease for linkerd‑crds*/}}
-{{/*apiVersion: helm.toolkit.fluxcd.io/v2*/}}
-{{/*kind: HelmRelease*/}}
-{{/*metadata:*/}}
-{{/*  name: linkerd-crds*/}}
-{{/*  namespace: sys-linkerd*/}}
-{{/*spec:*/}}
-{{/*  releaseName: linkerd-crds*/}}
-{{/*  interval: 5m*/}}
-{{/*  chart:*/}}
-{{/*    spec:*/}}
-{{/*      chart: linkerd-crds*/}}
-{{/*      version: 1.8.0 # https://artifacthub.io/packages/helm/linkerd2/linkerd-crds*/}}
-{{/*      sourceRef:*/}}
-{{/*        kind: HelmRepository*/}}
-{{/*        name: linkerd*/}}
-{{/*        namespace: sys-linkerd*/}}
-{{/*---*/}}
-{{/*# Create a HelmRelease for linkerd‑control‑plane that pulls the trust anchor from the secret*/}}
-{{/*apiVersion: helm.toolkit.fluxcd.io/v2*/}}
-{{/*kind: HelmRelease*/}}
-{{/*metadata:*/}}
-{{/*  name: linkerd-control-plane*/}}
-{{/*  namespace: sys-linkerd*/}}
-{{/*spec:*/}}
-{{/*  releaseName: linkerd-control-plane*/}}
-{{/*  interval: 5m*/}}
-{{/*  chart:*/}}
-{{/*    spec:*/}}
-{{/*      chart: linkerd-control-plane*/}}
-{{/*      sourceRef:*/}}
-{{/*        kind: HelmRepository*/}}
-{{/*        name: linkerd*/}}
-{{/*        namespace: sys-linkerd*/}}
-{{/*  valuesFrom:*/}}
-{{/*    - kind: Secret*/}}
-{{/*      name: linkerd-trust-anchor*/}}
-{{/*      valuesKey: tls.crt*/}}
-{{/*      target: identityTrustAnchorsPEM*/}}
-{{/*  values:*/}}
-{{/*    linkerdVersion: stable-2.14.10*/}}
-{{/*    controllerLogLevel: info*/}}
-{{/*    controllerLogFormat: plain*/}}
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: HelmRepository
+metadata:
+  name: linkerd
+  namespace: sys-linkerd
+spec:
+  interval: 1h
+  url: https://helm.linkerd.io/stable
+---
+# Create a HelmRelease for linkerd‑crds
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: linkerd-crds
+  namespace: sys-linkerd
+spec:
+  releaseName: linkerd-crds
+  interval: 5m
+  chart:
+    spec:
+      chart: linkerd-crds
+      version: 1.8.0 # https://artifacthub.io/packages/helm/linkerd2/linkerd-crds
+      sourceRef:
+        kind: HelmRepository
+        name: linkerd
+        namespace: sys-linkerd
+---
+# Create a HelmRelease for linkerd‑control‑plane that pulls the trust anchor from the secret
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: linkerd-control-plane
+  namespace: sys-linkerd
+spec:
+  releaseName: linkerd-control-plane
+  interval: 5m
+  chart:
+    spec:
+      chart: linkerd-control-plane
+      sourceRef:
+        kind: HelmRepository
+        name: linkerd
+        namespace: sys-linkerd
+  valuesFrom:
+    - kind: Secret
+      name: linkerd-trust-anchor
+      valuesKey: tls.crt
+      target: identityTrustAnchorsPEM
+  values:
+    linkerdVersion: stable-2.14.10
+    controllerLogLevel: info
+    controllerLogFormat: plain
 
-{{/*    # for HA*/}}
-{{/*    controllerReplicas: 1*/}}
-{{/*    enablePodAntiAffinity: false*/}}
-{{/*    enablePodDisruptionBudget: false*/}}
+    # for HA
+    controllerReplicas: 1
+    enablePodAntiAffinity: false
+    enablePodDisruptionBudget: false
 
-{{/*    identity:*/}}
-{{/*      externalCA: false*/}}
-{{/*      issuer:*/}}
-{{/*        scheme: kubernetes.io/tls*/}}
-{{/*        issuanceLifetime: 24h0m0s*/}}
+    identity:
+      externalCA: false
+      issuer:
+        scheme: kubernetes.io/tls
+        issuanceLifetime: 24h0m0s
 
-{{/*    policyController:*/}}
-{{/*      logLevel: info*/}}
+    policyController:
+      logLevel: info
 
-{{/*    proxy:*/}}
-{{/*      logLevel: warn,linkerd=info,trust_dns=error*/}}
-{{/*      logFormat: plain # -- Log format (`plain` or `json`) for the proxy*/}}
+    proxy:
+      logLevel: warn,linkerd=info,trust_dns=error
+      logFormat: plain # -- Log format (`plain` or `json`) for the proxy
 
-{{/*    proxyInit:*/}}
-{{/*      logLevel: info*/}}
-{{/*      logFormat: plain # -- Log format (`plain` or `json`) for the proxy-init*/}}
+    proxyInit:
+      logLevel: info
+      logFormat: plain # -- Log format (`plain` or `json`) for the proxy-init
 
-{{/*    networkValidator:*/}}
-{{/*      logLevel: debug*/}}
-{{/*      logFormat: plain*/}}
+    networkValidator:
+      logLevel: debug
+      logFormat: plain
