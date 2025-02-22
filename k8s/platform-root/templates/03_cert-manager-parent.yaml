@@ -1,40 +1,35 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: sys-sealed-secrets
-  labels:
+  name: sys-cert-manager
+  annotations:
     linkerd.io/inject: "enabled"
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: sealed-secrets-parent
-  namespace: sys-sealed-secrets
+  name: cert-manager-parent
+  namespace: sys-cert-manager
 spec:
   interval: 10s
   maxHistory: 1
   driftDetection:
     mode: enabled
   dependsOn:
-    - name: platform
+    - name: fluxcd # not the parent, but the actual fluxcd helm release
       namespace: flux-system
   chart:
     spec:
-      chart: ./k8s/platform-charts/02_sealed-secrets
+      chart: ./k8s/platform-charts/03_cert-manager
       sourceRef:
         kind: GitRepository
         name: my-cluster
         namespace: flux-system
   values:
-    env: {{ .Values.env }}
     {{- if eq .Values.env "prod" }}
-    versions:
-      chart: "2.17.1"
-      image: "0.28.0"
+    version: "v1.17.1"
     {{- else if eq .Values.env "stage" }}
-    versions:
-      chart: "2.17.1"
-      image: "0.28.0"
+    version: "v1.17.1"
     {{- else }}
     {{- fail "The env value must be either 'prod' or 'stage'" }}
     {{- end }}

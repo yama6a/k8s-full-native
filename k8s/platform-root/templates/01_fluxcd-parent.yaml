@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: flux-system
-  labels:
+  annotations:
     linkerd.io/inject: "enabled"
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
@@ -15,9 +15,6 @@ spec:
   maxHistory: 1
   driftDetection:
     mode: enabled
-  dependsOn:
-    - name: platform
-      namespace: flux-system
   chart:
     spec:
       chart: ./k8s/platform-charts/01_fluxcd
