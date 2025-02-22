@@ -1,4 +1,4 @@
 # Root Helm Chart
 apiVersion: v2
-name: Sealed Secrets
-version: 0.0.9
+name: SealedSecretsParent
+version: 0.0.10

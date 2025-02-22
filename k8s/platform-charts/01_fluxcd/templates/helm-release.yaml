@@ -62,33 +62,21 @@ spec:
           cpu: 100m
           memory: 64Mi
 
-    imageAutomationController:
-      create: true
-      image: ghcr.io/fluxcd/image-automation-controller
-      tag: {{ .Values.versions.image_automation_controller }}
-      resources: *resources
-
-    imageReflectionController:
-      create: true
-      image: ghcr.io/fluxcd/image-reflector-controller
-      tag: {{ .Values.versions.image_reflection_controller }}
-      resources: *resources
-
-    kustomizeController:
-      create: true
-      image: ghcr.io/fluxcd/kustomize-controller
-      tag: {{ .Values.versions.kustomize_controller }}
-      resources: *resources
-
-    notificationController:
-      create: true
-      image: ghcr.io/fluxcd/notification-controller
-      tag: {{ .Values.versions.notification_controller }}
-      resources: *resources
-
     sourceController:
       create: true
       image: ghcr.io/fluxcd/source-controller
       tag: {{ .Values.versions.source_controller }}
       resources: *resources
+
+    imageAutomationController:
+      create: false
+
+    imageReflectionController:
+      create: false
+
+    kustomizeController:
+      create: false
+
+    notificationController:
+      create: false
 
