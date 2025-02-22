@@ -3,7 +3,7 @@ kind: Namespace
 metadata:
   name: sys-linkerd
 # Do not add the linkerd annotation to linkerd's own namespace:
-# labels:
+# annotations:
 #   linkerd.io/inject: "enabled"
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
