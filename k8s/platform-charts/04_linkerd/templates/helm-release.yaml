@@ -28,58 +28,58 @@ spec:
         name: linkerd
         namespace: sys-linkerd
 ---
-{{/*# Create a HelmRelease for linkerd‑control‑plane that pulls the trust anchor from the secret*/}}
-{{/*apiVersion: helm.toolkit.fluxcd.io/v2*/}}
-{{/*kind: HelmRelease*/}}
-{{/*metadata:*/}}
-{{/*  name: linkerd-control-plane*/}}
-{{/*  namespace: sys-linkerd*/}}
-{{/*spec:*/}}
-{{/*  interval: 10s*/}}
-{{/*  maxHistory: 1*/}}
-{{/*  driftDetection:*/}}
-{{/*    mode: enabled*/}}
-{{/*  releaseName: linkerd-control-plane*/}}
-{{/*  chart:*/}}
-{{/*    spec:*/}}
-{{/*      chart: linkerd-control-plane*/}}
-{{/*      version: {{ .Values.versions.linkerdChart }}*/}}
-{{/*      sourceRef:*/}}
-{{/*        kind: HelmRepository*/}}
-{{/*        name: linkerd*/}}
-{{/*        namespace: sys-linkerd*/}}
-{{/*  valuesFrom:*/}}
-{{/*    - kind: Secret*/}}
-{{/*      name: linkerd-trust-anchor*/}}
-{{/*      valuesKey: tls.crt*/}}
-{{/*      targetPath: identityTrustAnchorsPEM*/}}
-{{/*  values:*/}}
-{{/*    linkerdVersion: {{ .Values.versions.linkerd }}*/}}
-{{/*    controllerLogLevel: info*/}}
-{{/*    controllerLogFormat: plain*/}}
+# Create a HelmRelease for linkerd‑control‑plane that pulls the trust anchor from the secret
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: linkerd-control-plane
+  namespace: sys-linkerd
+spec:
+  interval: 10s
+  maxHistory: 1
+  driftDetection:
+    mode: enabled
+  releaseName: linkerd-control-plane
+  chart:
+    spec:
+      chart: linkerd-control-plane
+      version: {{ .Values.versions.linkerdChart }}
+      sourceRef:
+        kind: HelmRepository
+        name: linkerd
+        namespace: sys-linkerd
+  valuesFrom:
+    - kind: Secret
+      name: linkerd-trust-anchor
+      valuesKey: tls.crt
+      targetPath: identityTrustAnchorsPEM
+  values:
+    linkerdVersion: {{ .Values.versions.linkerd }}
+    controllerLogLevel: info
+    controllerLogFormat: plain
 
-{{/*    # for HA*/}}
-{{/*    controllerReplicas: 1*/}}
-{{/*    enablePodAntiAffinity: false*/}}
-{{/*    enablePodDisruptionBudget: false*/}}
+    # for HA
+    controllerReplicas: 1
+    enablePodAntiAffinity: false
+    enablePodDisruptionBudget: false
 
-{{/*    identity:*/}}
-{{/*      externalCA: false*/}}
-{{/*      issuer:*/}}
-{{/*        scheme: kubernetes.io/tls*/}}
-{{/*        issuanceLifetime: 24h0m0s*/}}
+    identity:
+      externalCA: false
+      issuer:
+        scheme: kubernetes.io/tls
+        issuanceLifetime: 24h0m0s
 
-{{/*    policyController:*/}}
-{{/*      logLevel: info*/}}
+    policyController:
+      logLevel: info
 
-{{/*    proxy:*/}}
-{{/*      logLevel: warn,linkerd=info,trust_dns=error*/}}
-{{/*      logFormat: plain # -- Log format (`plain` or `json`) for the proxy*/}}
+    proxy:
+      logLevel: warn,linkerd=info,trust_dns=error
+      logFormat: plain # -- Log format (`plain` or `json`) for the proxy
 
-{{/*    proxyInit:*/}}
-{{/*      logLevel: info*/}}
-{{/*      logFormat: plain # -- Log format (`plain` or `json`) for the proxy-init*/}}
+    proxyInit:
+      logLevel: info
+      logFormat: plain # -- Log format (`plain` or `json`) for the proxy-init
 
-{{/*    networkValidator:*/}}
-{{/*      logLevel: debug*/}}
-{{/*      logFormat: plain*/}}
+    networkValidator:
+      logLevel: debug
+      logFormat: plain
