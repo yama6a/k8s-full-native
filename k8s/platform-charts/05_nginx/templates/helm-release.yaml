@@ -25,7 +25,7 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: ingress-nginx
-        namespace: flux-system
+        namespace: sys-nginx
   values:
     namespaceOverride: "sys-nginx"
     revisionHistoryLimit: 1
