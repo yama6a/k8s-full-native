@@ -5,7 +5,7 @@ metadata:
   namespace: sys-linkerd
 spec:
   interval: 1h
-  url: https://helm.linkerd.io/stable
+  url: https://helm.linkerd.io/edge
 ---
 # Create a HelmRelease for linkerd‑crds
 apiVersion: helm.toolkit.fluxcd.io/v2
@@ -36,6 +36,7 @@ metadata:
   namespace: sys-linkerd
 spec:
   interval: 10s
+  timeout: 10m # -- Increase the install/upgrade timeout to 10 minutes (images are rather large and can take a while to pull)
   maxHistory: 1
   driftDetection:
     mode: enabled
@@ -57,11 +58,18 @@ spec:
     linkerdVersion: {{ .Values.versions.linkerd }}
     controllerLogLevel: info
     controllerLogFormat: plain
+    revisionHistoryLimit: 1
 
     # for HA
     controllerReplicas: 1
     enablePodAntiAffinity: false
     enablePodDisruptionBudget: false
+    controller:
+      podDisruptionBudget:
+        maxUnavailable: 1
+
+    egress: # -- The namespace that is used to store egress configuration that affects all client workloads in the cluster
+      globalEgressNetworkNamespace: sys-linkerd
 
     identity:
       externalCA: false
@@ -73,6 +81,7 @@ spec:
       logLevel: info
 
     proxy:
+      enableShutdownEndpoint: true # -- Enables the proxy's /shutdown admin endpoint (useful to gracefully terminate pods for jobs/cronjobs - i.e. ping the proxy-shutdown after the job is done)
       logLevel: warn,linkerd=info,trust_dns=error
       logFormat: plain # -- Log format (`plain` or `json`) for the proxy
 
