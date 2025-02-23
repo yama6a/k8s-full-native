@@ -1,4 +1,4 @@
 # Root Helm Chart
 apiVersion: v2
-name: Root
-version: 0.0.11
+name: AppsRoot
+version: 0.0.0

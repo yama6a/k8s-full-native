@@ -29,7 +29,10 @@ images=(
   "ghcr.io/fluxcd/helm-controller:v1.1.0"
   "ghcr.io/fluxcd/flux-cli:v2.4.0"
   "docker.io/bitnami/sealed-secrets-controller:0.28.0"
-  "registry.k8s.io/metrics-server/metrics-server:v0.7.2@sha256:ffcb2bf004d6aa0a17d90e0247cf94f2865c8901dcab4427034c341951c239f9"
+  "registry.k8s.io/ingress-nginx/kube-webhook-certgen:v1.4.0@sha256:44d1d0e9f19c63f58b380c5fddaca7cf22c7cee564adeff365225a5df5ef3334"
+  "registry.k8s.io/ingress-nginx/controller:1.12.0@sha256:42b3f0e5d0846876b1791cd3afeb5f1cbbe4259d6f35651dcc1b5c980925379c"
+  "docker.l5d.io/buoyantio/emojivoto-web:v11"
+  "docker.l5d.io/buoyantio/emojivoto-voting-svc:v11"
 )
 for img in "${images[@]}"; do
   (

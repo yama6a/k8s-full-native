@@ -1,7 +1,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: platform-root
+  name: apps-root
   namespace: flux-system
 spec:
   interval: 10s
@@ -13,7 +13,7 @@ spec:
       namespace: flux-system
   chart:
     spec:
-      chart: ./k8s/platform-root
+      chart: ./k8s/apps-root
       sourceRef:
         kind: GitRepository
         name: my-cluster
