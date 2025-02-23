@@ -37,7 +37,7 @@ spec:
       image:
         tag: {{ .Values.versions.controller }}
       podAnnotations:
-        linkerd.io/inject: "enabled"
+{{/*        linkerd.io/inject: "enabled"*/}}
         #config.linkerd.io/skip-incoming-ports: 80,443 # todo: check if nginx can see the correct external IPs. uncomment/google it if not.
         #todo:  add this to all ingress resources: nginx.ingress.kubernetes.io/service-upstream: "true" (makes nginx use the service's IP instead of the pod's IP - and thus allow linkerd to do the linkerd magic)
 
