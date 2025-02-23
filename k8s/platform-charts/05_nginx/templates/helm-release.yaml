@@ -26,21 +26,21 @@ spec:
         kind: HelmRepository
         name: ingress-nginx
         namespace: sys-nginx
-  values:
-    namespaceOverride: "sys-nginx"
-    revisionHistoryLimit: 1
+{{/*  values:*/}}
+{{/*    namespaceOverride: "sys-nginx"*/}}
+{{/*    revisionHistoryLimit: 1*/}}
 
-    controller:
-      replicaCount: 1
-      # minAvailable: 1
-      # maxUnavailable: 1
-      image:
-        tag: {{ .Values.versions.controller }}
-      podAnnotations:
+{{/*    controller:*/}}
+{{/*      replicaCount: 1*/}}
+{{/*      # minAvailable: 1*/}}
+{{/*      # maxUnavailable: 1*/}}
+{{/*      image:*/}}
+{{/*        tag: {{ .Values.versions.controller }}*/}}
+{{/*      podAnnotations:*/}}
 {{/*        linkerd.io/inject: "enabled"*/}}
-        #config.linkerd.io/skip-incoming-ports: 80,443 # todo: check if nginx can see the correct external IPs. uncomment/google it if not.
-        #todo:  add this to all ingress resources: nginx.ingress.kubernetes.io/service-upstream: "true" (makes nginx use the service's IP instead of the pod's IP - and thus allow linkerd to do the linkerd magic)
+{{/*        #config.linkerd.io/skip-incoming-ports: 80,443 # todo: check if nginx can see the correct external IPs. uncomment/google it if not.*/}}
+{{/*        #todo:  add this to all ingress resources: nginx.ingress.kubernetes.io/service-upstream: "true" (makes nginx use the service's IP instead of the pod's IP - and thus allow linkerd to do the linkerd magic)*/}}
 
-      extraArgs: { }
-      ## extraArgs:
-      ##   default-ssl-certificate: "<namespace>/<secret_name>"
+{{/*      extraArgs: { }*/}}
+{{/*      ## extraArgs:*/}}
+{{/*      ##   default-ssl-certificate: "<namespace>/<secret_name>"*/}}
