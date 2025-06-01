@@ -93,10 +93,6 @@ sed "s/WEAVE_ADMIN_PASSWORD/$ESCAPED_HASH/g" ./bootstrap-weave-admin-secret-temp
     | kubeseal --controller-namespace sys-sealed-secrets --controller-name sealed-secrets --format yaml \
     > k8s/platform-charts/03_weave/templates/admin-sealedsecret.yaml
 
-sed "s/WEAVE_ADMIN_PASSWORD/$ESCAPED_HASH/g" ./bootstrap-weave-admin-secret-template2.yaml \
-    | kubeseal --controller-namespace sys-sealed-secrets --controller-name sealed-secrets --format yaml \
-    > k8s/platform-charts/03_weave/templates/admin-sealedsecret2.yaml
-
 
 
 # https://artifacthub.io/packages/helm/fluxcd-community/flux2
