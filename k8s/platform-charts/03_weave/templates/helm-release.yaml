@@ -7,7 +7,7 @@ metadata:
     app.kubernetes.io/name: weave-gitops-dashboard
     app.kubernetes.io/part-of: weave-gitops
   name: weave
-  namespace: sys-weave
+  namespace: flux-system
 spec:
   type: oci
   url: oci://ghcr.io/weaveworks/charts
@@ -17,7 +17,7 @@ apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
   name: weave
-  namespace: sys-weave
+  namespace: flux-system
 spec:
   chart:
     spec:
@@ -25,7 +25,7 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: weave
-        namespace: sys-weave
+        namespace: flux-system
   interval: 10s
   values:
     rbac:
