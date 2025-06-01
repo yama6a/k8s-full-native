@@ -29,8 +29,8 @@ spec:
   interval: 10s
   values:
     rbac:
-      impersonationResourceNames: ["admin"] # must be same as username below
+      impersonationResourceNames: ["admin"] # must be same as username below AND same as the username in the secret
     adminUser:
       create: true
       createSecret: false # secret is supplied by us via the sealed secret manifest admin-sealedsecret.yaml
-      username: admin
+      username: admin # needs to be supplied, otherwise the helm chart silently doesn't create the rbac required for user.
