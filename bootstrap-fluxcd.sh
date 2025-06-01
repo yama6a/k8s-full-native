@@ -11,6 +11,14 @@ if [ -z "${GITHUB_API_KEY}" ]; then
   exit 1
 fi
 
+# If env variable WEAVE_ADMIN_PASSWORD is not set, error and exit
+if [ -z "${WEAVE_ADMIN_PASSWORD}" ]; then
+  echo "environment variable WEAVE_ADMIN_PASSWORD is not set. Please call this script like:"
+  echo "    WEAVE_ADMIN_PASSWORD=yourpassword; ./bootstrap-fluxcd.sh"
+  echo "(with a leading space to avoid storing the password in bash history)"
+  exit 1
+fi
+
 # Bash strict mode (second half)
 set -ux
 
@@ -78,8 +86,14 @@ sed "s/GITHUB_API_KEY/$GITHUB_API_KEY/g" ./bootstrap-github-api-secret-template.
     | kubeseal --controller-namespace sys-sealed-secrets --controller-name sealed-secrets --format yaml \
     > k8s/platform-charts/01_fluxcd/templates/gh-api-key-sealedsecret.yaml
 
+sed "s/WEAVE_ADMIN_PASSWORD/$WEAVE_ADMIN_PASSWORD/g" ./bootstrap-weave-admin-secret-template.yaml \
+    | kubeseal --controller-namespace sys-sealed-secrets --controller-name sealed-secrets --format yaml \
+    > k8s/platform-charts/03_weave/templates/admin-sealedsecret.yaml
+
+
+
 # https://artifacthub.io/packages/helm/fluxcd-community/flux2
-# More sophisticated config will be applied once FluxCD takes over (see flux-apps/platform/01_fluxcd/helm-release.yaml)
+# More sophisticated config will be applied automatically, once FluxCD takes over (see flux-apps/platform/01_fluxcd/helm-release.yaml)
 # Todo: renovate the versions below as well as the ones in the helm-release.yaml
 helm repo add fluxcd https://fluxcd-community.github.io/helm-charts
 helm repo update fluxcd
@@ -98,4 +112,15 @@ helm install fluxcd fluxcd/flux2 \
 
 kubectl apply -f ./k8s/platform-charts/01_fluxcd/templates/gh-api-key-sealedsecret.yaml
 kubectl apply -f ./k8s/platform-charts/01_fluxcd/templates/git-repo.yaml
-kubectl apply -f ./k8s/HelmRelease-prod.yaml
+
+set +x
+
+echo "Now you need to git-commit and push all changes (including the sealed secrets) to your git repository."
+echo "CAUTION: the branch you want to work on must be specified in /k8s/platform-charts/01_fluxcd/templates/git-repo.yaml"
+echo "CAUTION2: you need to change it back to 'main' before you merge your branch to 'main'!"
+echo "Configured branch in /k8s/platform-charts/01_fluxcd/templates/git-repo.yaml:"
+cat ./k8s/platform-charts/01_fluxcd/templates/git-repo.yaml | grep branch:
+
+echo
+echo "After pushing yout changes, you can apply the ROOT HelmRelease manifestm to allow FluxCD to manage the rest of the cluster:"
+echo kubectl apply -f ./k8s/HelmRelease-prod.yaml

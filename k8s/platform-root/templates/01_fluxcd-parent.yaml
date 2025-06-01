@@ -8,7 +8,7 @@ metadata:
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: fluxcd-parent # todo: consider moving this to a different root, like base-root that comes before platform-root, so that if someone wants to change platform-root, it doesn't delete the helm-controller and everything stops reconciling...
+  name: fluxcd-parent # todo: consider moving this to a different root, like base-root that comes before platform-root, so that if someone wants to change platform-root, it doesn't delete flux' helm-controller and everything stops reconciling...
   namespace: flux-system
 spec:
   interval: 10s
