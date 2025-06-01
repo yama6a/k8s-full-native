@@ -21,7 +21,7 @@ spec:
   chart:
     spec:
       chart: gitops-server
-      version: {{ .Values.version }}
+      version: {{ .Values.version | quote }}
       sourceRef:
         kind: HelmRepository
         name: weave-gitops
