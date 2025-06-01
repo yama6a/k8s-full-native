@@ -24,9 +24,9 @@ spec:
         namespace: flux-system
   values:
     {{- if eq .Values.env "prod" }}
-    version: "4.0.36" # https://github.com/weaveworks/weave-gitops/blob/v0.38.0/charts/gitops-server/Chart.yaml
+    version: "4.0.37" # https://github.com/weaveworks/weave-gitops/blob/v0.38.0/charts/gitops-server/Chart.yaml
     {{- else if eq .Values.env "stage" }}
-    version: "4.0.36"
+    version: "4.0.37"
     {{- else }}
     {{- fail "The env value must be either 'prod' or 'stage'" }}
     {{- end }}
