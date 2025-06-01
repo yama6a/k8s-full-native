@@ -25,7 +25,7 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: ww-gitops
-  interval: 1h0m0s
+  interval: 10s
   values:
     rbac:
       impersonationResourceNames: ["admin"] # must be same as username below
