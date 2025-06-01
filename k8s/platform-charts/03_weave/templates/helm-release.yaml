@@ -33,6 +33,6 @@ spec:
     adminUser:
       # todo: this works, but didn't work with the sealed secret. The secret got created but we get 401. Maybe the name is wrong? "cluster-user-auth" or the namespace of the secret?
       create: true
-      createSecret: false
-{{/*      passwordHash: $2a$10$iz/HoXf9cApTVmaX361t3O05M2QI6.7rRMySfIjCINPqT61whJ52y*/}}
-{{/*      username: admin*/}}
+{{/*      createSecret: false*/}}
+      passwordHash: $2a$10$iz/HoXf9cApTVmaX361t3O05M2QI6.7rRMySfIjCINPqT61whJ52y
+      username: admin
