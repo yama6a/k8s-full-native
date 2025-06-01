@@ -17,7 +17,7 @@ apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
   name: weave
-  namespace: flux-system
+  namespace: flux-system # todo: change to sys-weave
 spec:
   chart:
     spec:
@@ -31,8 +31,8 @@ spec:
     rbac:
       impersonationResourceNames: ["admin"] # must be same as username below
     adminUser:
-      # todo: this works, but didn't work with the sealed secret. The secret got created but we get 401. Maybe the name is wrong? "cluster-user-auth" or the namespace of the secret?
       create: true
       createSecret: false
+      # todo: this works, but didn't work with the sealed secret. The secret got created but we get 401. Maybe the name is wrong? "cluster-user-auth" or the namespace of the secret?
 {{/*      passwordHash: $2a$10$iz/HoXf9cApTVmaX361t3O05M2QI6.7rRMySfIjCINPqT61whJ52y*/}}
-{{/*      username: admin*/}}
+      username: admin
