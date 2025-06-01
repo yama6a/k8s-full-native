@@ -24,7 +24,8 @@ spec:
       chart: weave-gitops
       sourceRef:
         kind: HelmRepository
-        name: ww-gitops
+        name: weave
+        namespace: sys-weave
   interval: 10s
   values:
     rbac:
