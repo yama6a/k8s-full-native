@@ -29,6 +29,9 @@ spec:
   interval: 10s
   values:
     rbac:
-      impersonationResourceNames: ["admin"] # must be same as username in the secret called "cluster-user-auth" (see admin-sealedsecret.yaml)
+      impersonationResourceNames: ["admin"] # must be same as username below
     adminUser:
+      # todo: this works, but didn't work with the sealed secret. The secret got created but we get 401. Maybe the name is wrong? "cluster-user-auth" or the namespace of the secret?
       create: false
+{{/*      passwordHash: $2a$10$iz/HoXf9cApTVmaX361t3O05M2QI6.7rRMySfIjCINPqT61whJ52y*/}}
+{{/*      username: admin*/}}

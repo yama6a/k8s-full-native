@@ -74,7 +74,7 @@ if [ $i -eq 60 ]; then
   echo "Error: sealed-secrets-controller not ready after 2 minutes";
   exit 1;
 fi;
-set -x
+set -x # todo: move this below the sealed-secrets SED'ing so that secred ENV vars are not printed in the stdout/logs
 
 # Todo: backup the sealed-secrets-controller's private key and public key on disk,
 #       and find a way for it to never delete it in the cluster no matter what, even if the HelmRelease is deleted.
