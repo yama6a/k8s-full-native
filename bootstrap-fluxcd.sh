@@ -74,7 +74,6 @@ if [ $i -eq 60 ]; then
   echo "Error: sealed-secrets-controller not ready after 2 minutes";
   exit 1;
 fi;
-set -x # todo: move this below the sealed-secrets SED'ing so that secred ENV vars are not printed in the stdout/logs
 
 # Todo: backup the sealed-secrets-controller's private key and public key on disk,
 #       and find a way for it to never delete it in the cluster no matter what, even if the HelmRelease is deleted.
@@ -88,6 +87,8 @@ sed "s/GITHUB_API_KEY/$GITHUB_API_KEY/g" ./bootstrap-github-api-secret-template.
 
 export HASH=$(echo -n "$WEAVE_ADMIN_PASSWORD" | gitops get bcrypt-hash)
 export ESCAPED_HASH=$(printf '%s' "$HASH" | sed 's/[\/&$]/\\&/g')
+
+set -x
 
 sed "s/WEAVE_ADMIN_PASSWORD/$ESCAPED_HASH/g" ./bootstrap-weave-admin-secret-template.yaml \
     | kubeseal --controller-namespace sys-sealed-secrets --controller-name sealed-secrets --format yaml \
