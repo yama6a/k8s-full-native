@@ -1,8 +1,13 @@
 apiVersion: source.toolkit.fluxcd.io/v1beta2
 kind: HelmRepository
 metadata:
-  name: weave-gitops
-  namespace: sys-weave
+  labels:
+    app.kubernetes.io/component: ui
+    app.kubernetes.io/created-by: weave-gitops-cli
+    app.kubernetes.io/name: weave-gitops-dashboard
+    app.kubernetes.io/part-of: weave-gitops
+  name: ww-gitops
+  namespace: flux-system
 spec:
   type: oci
   url: oci://ghcr.io/weaveworks/charts
@@ -11,41 +16,20 @@ spec:
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
-  name: weave-gitops
-  namespace: sys-weave
+  name: ww-gitops
+  namespace: flux-system
 spec:
-  interval: 1m
-  maxHistory: 1
-  driftDetection:
-    mode: enabled
   chart:
     spec:
-      chart: gitops-server
-      version: {{ .Values.version | quote }}
+      chart: weave-gitops
       sourceRef:
         kind: HelmRepository
-        name: weave-gitops
-        namespace: flux-system
+        name: ww-gitops
+  interval: 1h0m0s
   values:
     rbac:
       impersonationResourceNames: ["admin"] # must be same as username below
     adminUser:
       create: true
-      createSecret: true
+      passwordHash: $2a$10$iz/HoXf9cApTVmaX361t3O05M2QI6.7rRMySfIjCINPqT61whJ52y
       username: admin
-      passwordHash: "$2a$10$B0GUuJ3KzIK7l.H6gTtA/eUL0u/W9hLIlEKGNr7OhOhFcWwEWX09S"
-      # bcrypt hash of the cleartext-password: 2XrY9jaJNHtTOCjdXKoQtmMmlbhADLzR
-      # Generate with `gitops get bcrypt-hash`
-      # which needs" `brew tap weaveworks/tap && brew install weaveworks/tap/gitops`
-      #####
-      # todo: replace with SEALED secret that contains the followinng clear-text secret:
-      #
-      # apiVersion: v1
-      # kind: Secret
-      # metadata:
-      #   name: cluster-user-auth # must be this one. That's hardcoded in the helm chart.
-      #   namespace: sys-weave
-      # type: Opaque
-      # stringData:
-      #   username: admin
-      #   password: your-bcrypt-hash
