@@ -86,11 +86,13 @@ sed "s/GITHUB_API_KEY/$GITHUB_API_KEY/g" ./bootstrap-github-api-secret-template.
     | kubeseal --controller-namespace sys-sealed-secrets --controller-name sealed-secrets --format yaml \
     > k8s/platform-charts/01_fluxcd/templates/gh-api-key-sealedsecret.yaml
 
-sed "s/WEAVE_ADMIN_PASSWORD/$WEAVE_ADMIN_PASSWORD/g" ./bootstrap-weave-admin-secret-template.yaml \
+export HASH=$(echo "$WEAVE_ADMIN_PASSWORD" | gitops get bcrypt-hash)
+
+sed "s/WEAVE_ADMIN_PASSWORD/$HASH/g" ./bootstrap-weave-admin-secret-template.yaml \
     | kubeseal --controller-namespace sys-sealed-secrets --controller-name sealed-secrets --format yaml \
     > k8s/platform-charts/03_weave/templates/admin-sealedsecret.yaml
 
-sed "s/WEAVE_ADMIN_PASSWORD/$WEAVE_ADMIN_PASSWORD/g" ./bootstrap-weave-admin-secret-template2.yaml \
+sed "s/WEAVE_ADMIN_PASSWORD/$HASH/g" ./bootstrap-weave-admin-secret-template2.yaml \
     | kubeseal --controller-namespace sys-sealed-secrets --controller-name sealed-secrets --format yaml \
     > k8s/platform-charts/03_weave/templates/admin-sealedsecret2.yaml
 
