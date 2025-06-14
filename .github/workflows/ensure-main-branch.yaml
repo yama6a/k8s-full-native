@@ -10,6 +10,6 @@ jobs:
       - run: |
           branch=$(yq eval '.spec.ref.branch' k8s/platform-charts/01_fluxcd/templates/git-repo.yaml)
           if [ "$branch" != "main" ]; then
-            echo "Error: .spec.ref.branch is \"$branch\", expected \"main\""
+            echo "Error: .spec.ref.branch is \"$branch\", expected \"main\" in file k8s/platform-charts/01_fluxcd/templates/git-repo.yaml"
             exit 1
           fi
