@@ -24,25 +24,9 @@ spec:
         namespace: flux-system
   values:
     {{- if eq .Values.env "prod" }}
-    versions:
-      fluxcd: "2.14.1"
-      cli: "v2.4.0"
-      helm_controller: "v1.1.0"
-      kustomize_controller: "v1.4.0"
-      source_controller: "v1.4.1"
-{{/*      image_automation_controller: "v0.39.0"*/}}
-{{/*      image_reflection_controller: "v0.33.0"*/}}
-{{/*      notification_controller: "v1.4.0"*/}}
+    chartVersion: "2.14.1" # https://artifacthub.io/packages/helm/fluxcd-community/flux2
     {{- else if eq .Values.env "stage" }}
-    versions:
-      fluxcd: "2.14.1"
-      cli: "v2.4.0"
-      helm_controller: "v1.1.0"
-      source_controller: "v1.4.1"
-      kustomize_controller: "v1.4.0"
-{{/*      image_automation_controller: "v0.39.0"*/}}
-{{/*      image_reflection_controller: "v0.33.0"*/}}
-{{/*      notification_controller: "v1.4.0"*/}}
+    chartVersion: "2.14.1" # update also in bootstrap script
     {{- else }}
     {{- fail "The env value must be either 'prod' or 'stage'" }}
     {{- end }}

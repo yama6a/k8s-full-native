@@ -20,18 +20,13 @@ spec:
   chart:
     spec:
       chart: sealed-secrets
-      version: {{ .Values.versions.chart }}
+      version: {{ .Values.chartVersion }}
       sourceRef:
         kind: HelmRepository
         name: sealed-secrets
         namespace: sys-sealed-secrets
   values:
     namespace: "sys-sealed-secrets"
-
-    image: # https://hub.docker.com/r/bitnami/sealed-secrets-controller/tags
-      registry: docker.io
-      repository: bitnami/sealed-secrets-controller
-      tag: {{ .Values.versions.image }}
 
     logInfoStdout: true # whether to log info-logs to stdout
     logLevel: "INFO" # (INFO,ERROR)
