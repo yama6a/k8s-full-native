@@ -26,7 +26,13 @@ spec:
         kind: HelmRepository
         name: ingress-nginx
         namespace: sys-nginx
-{{/*  values:*/}}
+  values:
+    controller:
+      kind: DaemonSet
+      hostPort:
+        enabled: true
+        ports:
+          http: 18080
 {{/*    namespaceOverride: "sys-nginx"*/}}
 {{/*    revisionHistoryLimit: 1*/}}
 
