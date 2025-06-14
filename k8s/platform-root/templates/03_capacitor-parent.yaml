@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: sys-capacitor
+  annotations:
+    linkerd.io/inject: "enabled"
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: capacitor-parent
+  namespace: sys-capacitor
+spec:
+  interval: 10s
+  maxHistory: 1
+  driftDetection:
+    mode: enabled
+  chart:
+    spec:
+      chart: ./k8s/platform-charts/03_capacitor
+      sourceRef:
+        kind: GitRepository
+        name: my-cluster
+        namespace: flux-system
+  values:
+    {{- if eq .Values.env "prod" }}
+    chartVersion: "0.4.8" # https://github.com/gimlet-io/capacitor/releases
+    {{- else if eq .Values.env "stage" }}
+    chartVersion: "0.4.8"
+    {{- else }}
+    {{- fail "The env value must be either 'prod' or 'stage'" }}
+    {{- end }}
