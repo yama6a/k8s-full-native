@@ -1,4 +1,4 @@
-name: Validate Helm Chart version
+name: Validate Helm Chart versions
 on:
   pull_request:
     types: [opened, synchronize, reopened]
@@ -19,6 +19,6 @@ jobs:
             fi
           done < <(find ./k8s -type f \( -name Chart.yaml -o -name Chart.yml \))
           if [ $failures -ne 0 ]; then
-            echo -e "Charts with incorrect versions:\n$msg"
+            echo -e "Charts with incorrect versions (should be 0.0.1):\n$msg"
             exit 1
           fi
