@@ -1,4 +1,3 @@
-# Root Helm Chart
 apiVersion: v2
 name: FluxcdParent
-version: 0.0.19
+version: 0.0.20

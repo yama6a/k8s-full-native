@@ -13,7 +13,7 @@ metadata:
   name: fluxcd
   namespace: flux-system
 spec:
-  interval: 1m
+  interval: 10s
   maxHistory: 1
   driftDetection:
     mode: enabled
@@ -75,7 +75,7 @@ spec:
       create: false
 
     kustomizeController:
-      create: false
+      create: true
 
     notificationController:
       create: false

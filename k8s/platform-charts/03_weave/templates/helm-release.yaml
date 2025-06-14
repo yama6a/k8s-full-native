@@ -1,0 +1,38 @@
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: HelmRepository
+metadata:
+  labels:
+    app.kubernetes.io/component: ui
+    app.kubernetes.io/created-by: weave-gitops-cli
+    app.kubernetes.io/name: weave-gitops-dashboard
+    app.kubernetes.io/part-of: weave-gitops
+  name: weave
+  namespace: sys-weave
+spec:
+  type: oci
+  url: oci://ghcr.io/weaveworks/charts
+  interval: 1h
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: weave
+  namespace: sys-weave
+spec:
+  chart:
+    spec:
+      chart: weave-gitops
+      version: {{ .Values.chartVersion }}
+      sourceRef:
+        kind: HelmRepository
+        name: weave
+        namespace: sys-weave
+  interval: 10s
+  values:
+    logLevel: debug
+    rbac:
+      impersonationResourceNames: ["admin"] # must be same as username below AND same as the username in the secret
+    adminUser:
+      create: true
+      createSecret: false # secret is supplied by us via the sealed secret manifest admin-sealedsecret.yaml
+      username: admin # needs to be supplied, otherwise the helm chart silently doesn't create the rbac required for user.
