@@ -29,6 +29,7 @@ spec:
         namespace: sys-weave
   interval: 10s
   values:
+    logLevel: debug
     rbac:
       impersonationResourceNames: ["admin"] # must be same as username below AND same as the username in the secret
     adminUser:
