@@ -75,7 +75,7 @@ spec:
       create: false
 
     kustomizeController:
-      create: false
+      create: true
 
     notificationController:
       create: false
