@@ -38,7 +38,9 @@ images=(
   "ghcr.io/fluxcd/source-controller:v1.4.1"
   "ghcr.io/fluxcd/helm-controller:v1.1.0"
   "ghcr.io/fluxcd/flux-cli:v2.4.0"
+  "ghcr.io/fluxcd/kustomize-controller:v1.4.0"
   "docker.io/bitnami/sealed-secrets-controller:0.28.0"
+  "ghcr.io/gimlet-io/capacitor:v0.4.8"
   "registry.k8s.io/metrics-server/metrics-server:v0.7.2@sha256:ffcb2bf004d6aa0a17d90e0247cf94f2865c8901dcab4427034c341951c239f9"
   "ghcr.io/weaveworks/wego-app:v0.38.0"
 )
