@@ -1,11 +1,10 @@
 name: Validate git-repo.yaml branch
 on:
-  push:
-    paths:
-      - 'k8s/platform-charts/01_fluxcd/templates/git-repo.yaml'
   pull_request:
-    paths:
-      - 'k8s/platform-charts/01_fluxcd/templates/git-repo.yaml'
+    types:
+      - opened
+      - synchronize
+      - reopened
 jobs:
   validate-branch:
     runs-on: ubuntu-latest

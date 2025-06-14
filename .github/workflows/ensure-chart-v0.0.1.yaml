@@ -1,7 +1,10 @@
 name: Validate Helm Chart version
 on:
-  push:
   pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
 jobs:
   validate-chart-version:
     runs-on: ubuntu-latest
