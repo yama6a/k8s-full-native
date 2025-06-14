@@ -22,7 +22,7 @@ spec:
   chart:
     spec:
       chart: weave-gitops
-      version: {{ .Values.version }}
+      version: {{ .Values.chartVersion }}
       sourceRef:
         kind: HelmRepository
         name: weave
