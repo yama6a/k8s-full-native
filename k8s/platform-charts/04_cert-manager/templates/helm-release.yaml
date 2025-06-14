@@ -20,7 +20,7 @@ spec:
   chart:
     spec:
       chart: cert-manager
-      version: {{ .Values.version }}
+      version: {{ .Values.chartVersion }}
       sourceRef:
         kind: HelmRepository
         name: cert-manager

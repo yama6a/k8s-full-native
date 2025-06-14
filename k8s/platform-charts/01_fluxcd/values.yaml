@@ -1,5 +1,1 @@
-versions:
-  fluxcd:
-  cli:
-  helm_controller:
-  source_controller:
+chartVersion:

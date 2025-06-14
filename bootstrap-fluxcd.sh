@@ -65,8 +65,7 @@ helm install sealed-secrets sealed-secrets/sealed-secrets \
 --namespace sys-sealed-secrets --create-namespace \
 --version 2.17.1 \
 --set-string "image.registry=docker.io" \
---set-string image.repository="bitnami/sealed-secrets-controller" \
---set-string image.tag="0.28.0"
+--set-string image.repository="bitnami/sealed-secrets-controller"
 
 # Wait for sealed-secrets-controller to be ready (we need the CRDs to be installed at least)
 set +x
@@ -111,12 +110,8 @@ helm repo update fluxcd
 helm install fluxcd fluxcd/flux2 \
 --namespace flux-system --create-namespace \
 --version 2.14.1 \
---set-string cli.tag="v2.4.0" \
---set-string helmController.tag="v1.1.0" \
---set-string sourceController.tag="v1.4.1" \
 --set imageReflectionController.create=false \
 --set imageAutomationController.create=false \
---set kustomizeController.create=false \
 --set notificationController.create=false
 
 kubectl apply -f ./k8s/platform-charts/01_fluxcd/templates/gh-api-key-sealedsecret.yaml

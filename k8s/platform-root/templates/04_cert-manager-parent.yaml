@@ -24,9 +24,9 @@ spec:
         namespace: flux-system
   values:
     {{- if eq .Values.env "prod" }}
-    version: "v1.17.1"
+    chartVersion: "v1.17.1"
     {{- else if eq .Values.env "stage" }}
-    version: "v1.17.1"
+    chartVersion: "v1.17.1"
     {{- else }}
     {{- fail "The env value must be either 'prod' or 'stage'" }}
     {{- end }}
