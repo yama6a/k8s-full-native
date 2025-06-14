@@ -21,19 +21,16 @@ spec:
       namespace: sys-linkerd
   chart:
     spec:
-      chart: ./k8s/platform-charts/05_nginx
+      chart: ./k8s/platform-charts/06_nginx
       sourceRef:
         kind: GitRepository
         name: my-cluster
         namespace: flux-system
   values:
     {{- if eq .Values.env "prod" }}
-    versions: # https://artifacthub.io/packages/helm/ingress-nginx/ingress-nginx
-      chart: "4.10.0"
-      controller: "1.12.0"
+    chartVersion: "4.10.0" # https://artifacthub.io/packages/helm/ingress-nginx/ingress-nginx
     {{- else if eq .Values.env "stage" }}
-      chart: "4.10.0"
-      controller: "1.12.0"
+    chartVersion: "4.10.0"
     {{- else }}
     {{- fail "The env value must be either 'prod' or 'stage'" }}
     {{- end }}

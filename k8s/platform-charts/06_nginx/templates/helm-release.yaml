@@ -21,7 +21,7 @@ spec:
   chart:
     spec:
       chart: ingress-nginx
-      version: {{ .Values.versions.chart }}
+      version: {{ .Values.chartVersion }}
       sourceRef:
         kind: HelmRepository
         name: ingress-nginx
@@ -34,8 +34,6 @@ spec:
 {{/*      replicaCount: 1*/}}
 {{/*      # minAvailable: 1*/}}
 {{/*      # maxUnavailable: 1*/}}
-{{/*      image:*/}}
-{{/*        tag: {{ .Values.versions.controller }}*/}}
 {{/*      podAnnotations:*/}}
 {{/*        linkerd.io/inject: "enabled"*/}}
 {{/*        #config.linkerd.io/skip-incoming-ports: 80,443 # todo: check if nginx can see the correct external IPs. uncomment/google it if not.*/}}
