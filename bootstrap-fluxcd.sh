@@ -126,5 +126,5 @@ echo "Configured branch in /k8s/platform-charts/01_fluxcd/templates/git-repo.yam
 cat ./k8s/platform-charts/01_fluxcd/templates/git-repo.yaml | grep branch:
 
 echo
-echo "After pushing yout changes, you can apply the ROOT HelmRelease manifestm to allow FluxCD to manage the rest of the cluster:"
+echo "After pushing your changes, you can apply the ROOT HelmRelease manifestm to allow FluxCD to manage the rest of the cluster:"
 echo kubectl apply -f ./k8s/HelmRelease-prod.yaml
