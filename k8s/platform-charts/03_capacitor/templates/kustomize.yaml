@@ -7,7 +7,7 @@ spec:
   interval: 12h
   url: oci://ghcr.io/gimlet-io/capacitor-manifests
   ref:
-    semver: {{ .Values.chartVersion }}
+    semver: {{ .Values.ociImageVersion }}
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
