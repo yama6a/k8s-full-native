@@ -16,9 +16,12 @@ spec:
   maxHistory: 1
   driftDetection:
     mode: enabled
+  dependsOn:
+    - name: cert-manager
+      namespace: sys-cert-manager
   chart:
     spec:
-      chart: ./k8s/platform-charts/04_linkerd
+      chart: ./k8s/platform-charts/05_linkerd
       sourceRef:
         kind: GitRepository
         name: my-cluster
@@ -30,6 +33,7 @@ spec:
       linkerdChart: "2025.2.2" # https://artifacthub.io/packages/helm/linkerd2/linkerd-control-plane
       linkerd: "edge-24.11.8"  # https://github.com/linkerd/linkerd2/tags (use edge-* release that corresponds to the latest version-* tag, and NOT the LATEST edge-* release)
     {{- else if eq .Values.env "stage" }}
+    versions:
       crdChart: "2025.2.2"     # https://artifacthub.io/packages/helm/linkerd2/linkerd-crds
       linkerdChart: "2025.2.2" # https://artifacthub.io/packages/helm/linkerd2/linkerd-control-plane
       linkerd: "edge-24.11.8"  # https://github.com/linkerd/linkerd2/tags (use edge-* release that corresponds to the latest version-* tag, and NOT the LATEST edge-* release)

@@ -1,15 +1,15 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: flux-system
+  name: sys-cert-manager
   annotations:
     linkerd.io/inject: "enabled"
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: fluxcd-parent # todo: consider moving this to a different root, like base-root that comes before platform-root, so that if someone wants to change platform-root, it doesn't delete flux' helm-controller and everything stops reconciling...
-  namespace: flux-system
+  name: cert-manager-parent
+  namespace: sys-cert-manager
 spec:
   interval: 10s
   maxHistory: 1
@@ -17,16 +17,16 @@ spec:
     mode: enabled
   chart:
     spec:
-      chart: ./k8s/platform-charts/01_fluxcd
+      chart: ./k8s/platform-charts/04_cert-manager
       sourceRef:
         kind: GitRepository
         name: my-cluster
         namespace: flux-system
   values:
     {{- if eq .Values.env "prod" }}
-    chartVersion: "2.14.1" # https://artifacthub.io/packages/helm/fluxcd-community/flux2
+    chartVersion: "v1.17.1"
     {{- else if eq .Values.env "stage" }}
-    chartVersion: "2.14.1" # update also in bootstrap script
+    chartVersion: "v1.17.1"
     {{- else }}
     {{- fail "The env value must be either 'prod' or 'stage'" }}
     {{- end }}

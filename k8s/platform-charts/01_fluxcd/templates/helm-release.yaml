@@ -13,14 +13,14 @@ metadata:
   name: fluxcd
   namespace: flux-system
 spec:
-  interval: 1m
+  interval: 10s
   maxHistory: 1
   driftDetection:
     mode: enabled
   chart:
     spec:
       chart: flux2
-      version: {{ .Values.versions.fluxcd }}
+      version: {{ .Values.chartVersion }}
       sourceRef:
         kind: HelmRepository
         name: fluxcd
@@ -39,42 +39,17 @@ spec:
     logLevel: info
     watchAllNamespaces: true
 
-    imagePullSecrets: [ ]
-    extraObjects: [ ]
-
-    cli:
-      image: ghcr.io/fluxcd/flux-cli
-      tag: {{ .Values.versions.cli }}
-
 
     ## CONTROLLERS
-    helmController:
-      create: true
-      image: ghcr.io/fluxcd/helm-controller
-      tag: {{ .Values.versions.helm_controller }}
-      container:
-        additionalArgs:
-          - "--log-level=debug"
-      resources: &resources
-        limits:
-          memory: 1Gi
-        requests:
-          cpu: 100m
-          memory: 64Mi
-
-    sourceController:
-      create: true
-      image: ghcr.io/fluxcd/source-controller
-      tag: {{ .Values.versions.source_controller }}
-      resources: *resources
+    # helmController:
+    #   container:
+    #     additionalArgs:
+    #       - "--log-level=debug"
 
     imageAutomationController:
       create: false
 
     imageReflectionController:
-      create: false
-
-    kustomizeController:
       create: false
 
     notificationController:

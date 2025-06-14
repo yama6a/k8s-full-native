@@ -1,4 +1,1 @@
-env:
-versions:
-  chart:
-  image:
+chartVersion:
