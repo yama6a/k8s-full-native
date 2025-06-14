@@ -24,7 +24,7 @@ set -ux
 
 # cache required images on host (avoid re-downloading them in minikube saves traffic and time)
 # See unnecessary pulls in events: kubectl get events --all-namespaces --field-selector reason=Pulling -o wide
-# metrics-server seems to always pull somehow, but it's small so, whatever ¯\_(ツ)_/¯
+# Minikube pre-installs the metrics-server before we can warm up the Container-VM here, so no need to list it here; it's small so, whatever ¯\_(ツ)_/¯
 # Todo: renovate the versions below?
 images=(
   "cr.l5d.io/linkerd/proxy:edge-24.11.8"
@@ -41,7 +41,6 @@ images=(
   "ghcr.io/fluxcd/kustomize-controller:v1.4.0"
   "docker.io/bitnami/sealed-secrets-controller:0.28.0"
   "ghcr.io/gimlet-io/capacitor:v0.4.8"
-  "registry.k8s.io/metrics-server/metrics-server:v0.7.2@sha256:ffcb2bf004d6aa0a17d90e0247cf94f2865c8901dcab4427034c341951c239f9"
   "ghcr.io/weaveworks/wego-app:v0.38.0"
 )
 for img in "${images[@]}"; do
