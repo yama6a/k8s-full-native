@@ -1,21 +1,20 @@
 name: Validate git-repo.yaml branch
 on:
   pull_request:
-    types:
-      - opened
-      - synchronize
-      - reopened
+    types: [opened, synchronize, reopened]
 jobs:
   validate-branch:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: mikefarah/setup-yq@v4 # GHA version
+      - name: Extract branch
+        id: branch
+        uses: mikefarah/yq@v4
         with:
-          version: '4.*' # yq version
-      - run: |
-          branch=$(yq eval '.spec.ref.branch' k8s/platform-charts/01_fluxcd/templates/git-repo.yaml)
-          if [ "$branch" != "main" ]; then
-            echo "Error: .spec.ref.branch is \"$branch\", expected \"main\""
+          cmd: yq '.spec.ref.branch' k8s/platform-charts/01_fluxcd/templates/git-repo.yaml
+      - name: Validate branch
+        run: |
+          if [ "${{ steps.branch.outputs.result }}" != "main" ]; then
+            echo "Error: .spec.ref.branch is \"${{ steps.branch.outputs.result }}\", expected \"main\""
             exit 1
           fi

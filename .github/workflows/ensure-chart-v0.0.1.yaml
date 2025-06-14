@@ -1,29 +1,15 @@
-name: Validate Helm Chart version
+name: Validate git-repo.yaml branch
 on:
   pull_request:
-    types:
-      - opened
-      - synchronize
-      - reopened
+    types: [opened, synchronize, reopened]
 jobs:
-  validate-chart-version:
+  validate-branch:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: mikefarah/setup-yq@v4 # GHA version
-        with:
-          version: '4.*' # yq version
       - run: |
-          failures=0
-          msg=""
-          while IFS= read -r chart; do
-            version=$(yq eval '.version' "$chart")
-            if [ "$version" != "0.0.1" ]; then
-              msg+="$chart: $version\n"
-              failures=$((failures+1))
-            fi
-          done < <(find ./k8s -type f \( -name Chart.yaml -o -name Chart.yml \))
-          if [ $failures -ne 0 ]; then
-            echo -e "Charts with incorrect versions:\n$msg"
+          branch=$(yq eval '.spec.ref.branch' k8s/platform-charts/01_fluxcd/templates/git-repo.yaml)
+          if [ "$branch" != "main" ]; then
+            echo "Error: .spec.ref.branch is \"$branch\", expected \"main\""
             exit 1
           fi
