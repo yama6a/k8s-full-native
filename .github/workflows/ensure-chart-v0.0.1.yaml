@@ -1,0 +1,24 @@
+name: Validate Helm Chart versions
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+jobs:
+  validate-chart-version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Validate Helm Chart versions
+        run: |
+          failures=0
+          msg=""
+          while IFS= read -r chart; do
+            version=$(yq eval '.version' "$chart")
+            if [ "$version" != "0.0.1" ]; then
+              msg+="$chart: $version\n"
+              failures=$((failures+1))
+            fi
+          done < <(find ./k8s -type f \( -name Chart.yaml -o -name Chart.yml \))
+          if [ $failures -ne 0 ]; then
+            echo -e "Charts with incorrect versions (should be 0.0.1):\n$msg"
+            exit 1
+          fi
