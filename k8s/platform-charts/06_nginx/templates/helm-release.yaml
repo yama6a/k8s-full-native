@@ -30,6 +30,7 @@ spec:
   values:
     controller:
       kind: DaemonSet
+      enableTopologyAwareRouting: true
       service:
         type: NodePort
         external:
