@@ -60,15 +60,15 @@ wait
 # Install sealed secrets controller (needed for FluxCD's secret containing the github API key)
 # More sophisticated config will be applied once FluxCD takes over (see flux-apps/platform/02_sealed_secrets/helm-release.yaml)
 # Todo: renovate the versions below as well as the ones in the helm-release.yaml
-helm repo add sealed-secrets https://bitnami-labs.github.io/sealed-secrets
-helm repo update sealed-secrets
+helm repo add sealed-secrets https://bitnami-labs.github.io/sealed-secrets > /dev/null
+helm repo update sealed-secrets > /dev/null
 # "sealed-secrets" must match the metadata.name in k8s/platform-charts/02_sealed_secrets/helm-release.yaml
 # to ensure that the Sealed Secrets helm-chart is overridden by the flux-managed one and sealed-secrets is thus managed by flux in the end.
 helm install sealed-secrets sealed-secrets/sealed-secrets \
 --namespace sys-sealed-secrets --create-namespace \
 --version 2.17.1 \
 --set-string "image.registry=docker.io" \
---set-string image.repository="bitnami/sealed-secrets-controller"
+--set-string image.repository="bitnami/sealed-secrets-controller" > /dev/null
 
 # Wait for sealed-secrets-controller to be ready (we need the CRDs to be installed at least)
 set +x
@@ -87,6 +87,7 @@ fi;
 #       And research and document how to recover the cluster's private key from a backup.
 
 
+echo "Preparing Sealed Secrets for FluxCD and Weave GitOps..."
 # Create Sealed Secret (replace GITHUB token with yours from the environment)
 sed "s/GITHUB_API_KEY/$GITHUB_API_KEY/g" ./bootstrap-github-api-secret-template.yaml \
     | kubeseal --controller-namespace sys-sealed-secrets --controller-name sealed-secrets --format yaml \
@@ -106,8 +107,8 @@ sed "s/WEAVE_ADMIN_PASSWORD/$ESCAPED_HASH/g" ./bootstrap-weave-admin-secret-temp
 # https://artifacthub.io/packages/helm/fluxcd-community/flux2
 # More sophisticated config will be applied automatically, once FluxCD takes over (see flux-apps/platform/01_fluxcd/helm-release.yaml)
 # Todo: renovate the versions below as well as the ones in the helm-release.yaml
-helm repo add fluxcd https://fluxcd-community.github.io/helm-charts
-helm repo update fluxcd
+helm repo add fluxcd https://fluxcd-community.github.io/helm-charts > /dev/null
+helm repo update fluxcd > /dev/null
 # "fluxcd" must match the spec.releaseName in k8s/platform-charts/01_fluxcd/helm-release.yaml
 # to ensure that the Flux helm-chart is overridden by the flux-managed one and flux is thus managed by itself in the end.
 helm install fluxcd fluxcd/flux2 \
@@ -115,16 +116,15 @@ helm install fluxcd fluxcd/flux2 \
 --version 2.14.1 \
 --set imageReflectionController.create=false \
 --set imageAutomationController.create=false \
---set notificationController.create=false
+--set notificationController.create=false > /dev/null
 
-kubectl apply -f ./k8s/platform-charts/01_fluxcd/templates/gh-api-key-sealedsecret.yaml
-kubectl apply -f ./k8s/platform-charts/01_fluxcd/templates/git-repo.yaml
+kubectl apply -f ./k8s/platform-charts/01_fluxcd/templates/gh-api-key-sealedsecret.yaml > /dev/null
+kubectl apply -f ./k8s/platform-charts/01_fluxcd/templates/git-repo.yaml > /dev/null
 
 set +x
 
 echo "Now you need to git-commit and push all changes (including the sealed secrets) to your git repository."
 echo "CAUTION: the branch you want to work on must be specified in /k8s/platform-charts/01_fluxcd/templates/git-repo.yaml"
-echo "CAUTION2: you need to change it back to 'main' before you merge your branch to 'main'!"
 echo "Configured branch in /k8s/platform-charts/01_fluxcd/templates/git-repo.yaml:"
 cat ./k8s/platform-charts/01_fluxcd/templates/git-repo.yaml | grep branch:
 

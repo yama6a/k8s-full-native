@@ -6,6 +6,10 @@ set -euxo pipefail
 # install minikube via brew if not installed
 brew install minikube || true
 
+
+# If the VM runs our of disk space (e.g. for docker images), we can resize the disk image.
+# qemu-img resize "$HOME/Library/Application Support/rancher-desktop/lima/0/diffdisk" +50G
+
 # start minikube
 minikube unpause || minikube start \
 --addons=metrics-server \
