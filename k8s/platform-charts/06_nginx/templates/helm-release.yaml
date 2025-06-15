@@ -40,6 +40,8 @@ spec:
         nodePorts:
           http: 30080
           https: 30443
+        config:
+          service-upstream: "true"
 {{/*    namespaceOverride: "sys-nginx"*/}}
 {{/*    revisionHistoryLimit: 1*/}}
 
