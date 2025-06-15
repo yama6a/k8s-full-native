@@ -66,9 +66,7 @@ helm repo update sealed-secrets > /dev/null
 # to ensure that the Sealed Secrets helm-chart is overridden by the flux-managed one and sealed-secrets is thus managed by flux in the end.
 helm install sealed-secrets sealed-secrets/sealed-secrets \
 --namespace sys-sealed-secrets --create-namespace \
---version 2.17.1 \
---set-string "image.registry=docker.io" \
---set-string image.repository="bitnami/sealed-secrets-controller" > /dev/null
+--version 2.17.1  > /dev/null
 
 # Wait for sealed-secrets-controller to be ready (we need the CRDs to be installed at least)
 set +x
@@ -81,6 +79,9 @@ if [ $i -eq 60 ]; then
   echo "Error: sealed-secrets-controller not ready after 2 minutes";
   exit 1;
 fi;
+
+sleep 10;
+
 
 # Todo: backup the sealed-secrets-controller's private key and public key on disk,
 #       and find a way for it to never delete it in the cluster no matter what, even if the HelmRelease is deleted.
