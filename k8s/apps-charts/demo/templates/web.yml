@@ -68,6 +68,7 @@ metadata:
   namespace: app-demo
   annotations:
     kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/service-upstream: "true"
 spec:
   rules:
     - host: web.app-demo.local
