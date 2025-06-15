@@ -13,6 +13,8 @@ metadata:
     app.kubernetes.io/name: web
     app.kubernetes.io/part-of: emojivoto
     app.kubernetes.io/version: v11
+  annotations:
+    config.linkerd.io/access-log: "apache"
 spec:
   replicas: 1
   selector:
