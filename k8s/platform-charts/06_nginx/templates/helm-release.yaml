@@ -15,7 +15,6 @@ metadata:
 spec:
   releaseName: nginx
   interval: 10s
-  timeout: 2m0s # todo: remove (i.e. back to default 5m0s) after testing
   maxHistory: 1
   driftDetection:
     mode: enabled
@@ -30,7 +29,7 @@ spec:
   values:
     controller:
       kind: DaemonSet
-      enableTopologyAwareRouting: true
+      enableTopologyAwareRouting: true # try to route traffic to the closest nginx pod (node>zone>region), instead of routing it to any random nginx pod in the cluster.
       podAnnotations:
         linkerd.io/inject: "enabled" # linkerd should intercept traffic FROM nginx pods to other pods in the cluster, so we enable linkerd on nginx pods.
         config.linkerd.io/skip-inbound-ports: "80,443" # linkerd should NOT intercept INCOMING traffic to nginx pods on these ports - there's no mTLS to terminate.
