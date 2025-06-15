@@ -31,6 +31,9 @@ spec:
     controller:
       kind: DaemonSet
       enableTopologyAwareRouting: true
+      podAnnotations:
+        linkerd.io/inject: "enabled" # linkerd should intercept traffic FROM nginx pods to other pods in the cluster, so we enable linkerd on nginx pods.
+        config.linkerd.io/skip-inbound-ports: "80,443" # linkerd should NOT intercept INCOMING traffic to nginx pods on these ports - there's no mTLS to terminate.
       service:
         type: NodePort
         external:
@@ -45,8 +48,7 @@ spec:
 {{/*      replicaCount: 1*/}}
 {{/*      # minAvailable: 1*/}}
 {{/*      # maxUnavailable: 1*/}}
-{{/*      podAnnotations:*/}}
-{{/*        linkerd.io/inject: "enabled"*/}}
+
 {{/*        #config.linkerd.io/skip-incoming-ports: 80,443 # todo: check if nginx can see the correct external IPs. uncomment/google it if not.*/}}
 {{/*        #todo:  add this to all ingress resources: nginx.ingress.kubernetes.io/service-upstream: "true" (makes nginx use the service's IP instead of the pod's IP - and thus allow linkerd to do the linkerd magic)*/}}
 
