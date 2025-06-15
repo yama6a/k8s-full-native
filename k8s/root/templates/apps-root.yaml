@@ -1,7 +1,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: platform-root
+  name: apps-root
   namespace: flux-system
 spec:
   interval: 10s
@@ -9,11 +9,11 @@ spec:
   driftDetection:
     mode: enabled
   dependsOn:
-    - name: root
-      namespace: flux-system
+    - name: linkerd-control-plane
+      namespace: sys-linkerd
   chart:
     spec:
-      chart: ./k8s/platform-root
+      chart: ./k8s/apps-root
       sourceRef:
         kind: GitRepository
         name: my-cluster
