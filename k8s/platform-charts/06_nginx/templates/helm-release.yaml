@@ -30,15 +30,10 @@ spec:
   values:
     controller:
       kind: DaemonSet
-      hostPort:
-        enabled: true
-        ports:
-          http: 30080
-          https: 30443
       service:
         type: NodePort
         external:
-          enabled: false
+          enabled: true
         nodePorts:
           http: 30080
           https: 30443

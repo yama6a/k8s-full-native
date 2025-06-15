@@ -19,6 +19,8 @@ minikube unpause || minikube start \
 --driver=docker \
 --kubernetes-version=v1.31.4 \
 --memory=8192 \
+--ports=30080:30080 \
+--ports=30443:30443 \
 --subnet=172.17.128.0/17
 #--addons=csi-hostpath-driver \
 #--addons=volumesnapshots \
