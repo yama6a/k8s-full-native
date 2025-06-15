@@ -4,6 +4,7 @@ metadata:
   name: app-demo
   annotations:
     linkerd.io/inject: "enabled"
+    config.linkerd.io/access-log: "apache"
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
