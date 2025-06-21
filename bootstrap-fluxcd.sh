@@ -101,7 +101,7 @@ set -x
 
 sed "s/WEAVE_ADMIN_PASSWORD/$ESCAPED_HASH/g" ./bootstrap-weave-admin-secret-template.yaml \
     | kubeseal --controller-namespace sys-sealed-secrets --controller-name sealed-secrets --format yaml \
-    > k8s/platform-charts/03_weave/templates/admin-sealedsecret.yaml
+    > k8s/platform-charts/05_weave/templates/admin-sealedsecret.yaml
 
 
 
@@ -127,8 +127,28 @@ set +x
 echo "Now you need to git-commit and push all changes (including the sealed secrets) to your git repository."
 echo "CAUTION: the branch you want to work on must be specified in /k8s/platform-charts/01_fluxcd/templates/git-repo.yaml"
 echo "Configured branch in /k8s/platform-charts/01_fluxcd/templates/git-repo.yaml:"
-cat ./k8s/platform-charts/01_fluxcd/templates/git-repo.yaml | grep branch:
+BRANCH=$(cat ./k8s/platform-charts/01_fluxcd/templates/git-repo.yaml | grep branch: | sed 's/.*: //')
+
+if [ "$BRANCH" = "main" ]; then
+  echo -e "Error: cannot commit to branch 'main'.\nPlease change the branch in ./k8s/platform-charts/01_fluxcd/templates/git-repo.yaml to a different branch."
+fi
+
+echo -e "Branch to commit to: \033[32m$BRANCH\033[0m"
+
+read -p "Do you want to continue? (y/n): " answer
+case "$answer" in
+    [Yy]) echo "Continuing...";;
+    [Nn]) echo "Exiting..."; exit 1;;
+    *) echo "Invalid input"; exit 2;;
+esac
+
+git checkout "$BRANCH" || git checkout -b "$BRANCH"
+git add ./k8s/platform-charts/01_fluxcd/templates/gh-api-key-sealedsecret.yaml
+git add ./k8s/platform-charts/05_weave/templates/admin-sealedsecret.yaml
+git commit -m 'wip'
+git push -u origin "$BRANCH"
+sleep 1;
 
 echo
 echo "After pushing your changes, you can apply the ROOT HelmRelease manifestm to allow FluxCD to manage the rest of the cluster:"
-echo kubectl apply -f ./k8s/HelmRelease-prod.yaml
+kubectl apply -f ./k8s/HelmRelease-prod.yaml

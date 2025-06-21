@@ -17,7 +17,7 @@ spec:
     mode: enabled
   chart:
     spec:
-      chart: ./k8s/platform-charts/03_weave
+      chart: ./k8s/platform-charts/05_weave
       sourceRef:
         kind: GitRepository
         name: my-cluster

@@ -21,7 +21,7 @@ spec:
       namespace: sys-cert-manager
   chart:
     spec:
-      chart: ./k8s/platform-charts/05_linkerd
+      chart: ./k8s/platform-charts/04_linkerd
       sourceRef:
         kind: GitRepository
         name: my-cluster
