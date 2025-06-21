@@ -1,7 +1,0 @@
-apiVersion: storage.k8s.io/v1
-kind: StorageClass
-metadata:
-  name: vault-storage
-provisioner: hostpath.csi.k8s.io
-volumeBindingMode: WaitForFirstConsumer
-reclaimPolicy: Retain
