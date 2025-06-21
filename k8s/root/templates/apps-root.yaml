@@ -11,6 +11,8 @@ spec:
   dependsOn:
     - name: linkerd-control-plane
       namespace: sys-linkerd
+    - name: nginx
+      namespace: sys-nginx
   chart:
     spec:
       chart: ./k8s/apps-root

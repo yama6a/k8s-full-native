@@ -15,6 +15,9 @@ spec:
   maxHistory: 1
   driftDetection:
     mode: enabled
+  dependsOn:
+    - name: linkerd-control-plane
+      namespace: sys-linkerd
   chart:
     spec:
       chart: ./k8s/platform-charts/05_weave
