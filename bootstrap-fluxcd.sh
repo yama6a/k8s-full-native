@@ -147,8 +147,40 @@ git add ./k8s/platform-charts/01_fluxcd/templates/gh-api-key-sealedsecret.yaml
 git add ./k8s/platform-charts/05_weave/templates/admin-sealedsecret.yaml
 git commit -m 'wip'
 git push -u origin "$BRANCH"
-sleep 1;
 
-echo
-echo "After pushing your changes, you can apply the ROOT HelmRelease manifestm to allow FluxCD to manage the rest of the cluster:"
+echo -e "Waiting for git changes to propagate..."
+# Otherwise, we might pick up old changes from git from the same branch, and Flux won't reconcile because we didn't bump the chart versions.
+# This can result in Flux not re-fetching the sealed secrets and trying to apply the old ones, which will fail because they were generated with a different key.
+# If you get still problems with sealed secrets not being able to decrypt, increase the sleep time below.
+sleep 5;
+
+echo -e "applying flux-apps..."
 kubectl apply -f ./k8s/HelmRelease-prod.yaml
+
+echo -e "updating hosts file..."
+TMP_FILE="$(mktemp)"
+sudo cp /etc/hosts /etc/hosts.backup.$(date +%Y%m%d-%H%M%S)
+grep -v "web\.app-demo\.local" /etc/hosts > "$TMP_FILE"
+echo "$(minikube ip) web.app-demo.local" >> "$TMP_FILE"
+sudo cp "$TMP_FILE" /etc/hosts
+
+echo -e "Waiting for helmreleases to be ready..."
+i=0
+while [ $i -lt 300 ]; do
+  output=$(kubectl get helmrelease -A --no-headers)
+  total=$(printf '%s\n' "$output" | wc -l)
+  ready=$(printf '%s\n' "$output" | grep -c True)
+  printf "\r\033[KHelmreleases ready: %d/%d (elapsed %ds)" "$ready" "$total" "$i"
+  [ "$ready" -eq "$total" ] && { printf "\n"; break; }
+  sleep 1
+  i=$((i+1))
+done
+if [ $i -eq 300 ]; then
+  echo "Error: sealed-secrets-controller not ready after 5 minutes"
+  exit 1
+fi
+
+echo "Replacing pods that are not meshed with Linkerd..."
+for ns in flux-system sys-cert-manager sys-sealed-secrets; do
+  kubectl delete pods --all -n $ns
+done
