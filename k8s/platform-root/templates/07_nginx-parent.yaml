@@ -21,7 +21,7 @@ spec:
       namespace: sys-linkerd
   chart:
     spec:
-      chart: ./k8s/platform-charts/06_nginx
+      chart: ./k8s/platform-charts/07_nginx
       sourceRef:
         kind: GitRepository
         name: my-cluster

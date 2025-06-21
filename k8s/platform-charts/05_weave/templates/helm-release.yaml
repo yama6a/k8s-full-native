@@ -19,6 +19,10 @@ metadata:
   name: weave
   namespace: sys-weave
 spec:
+  interval: 10s
+  maxHistory: 1
+  driftDetection:
+    mode: enabled
   chart:
     spec:
       chart: weave-gitops
@@ -27,7 +31,6 @@ spec:
         kind: HelmRepository
         name: weave
         namespace: sys-weave
-  interval: 10s
   values:
     logLevel: debug
     rbac:

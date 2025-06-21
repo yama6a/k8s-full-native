@@ -1,15 +1,15 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: sys-weave
+  name: sys-cert-manager
   annotations:
     linkerd.io/inject: "enabled"
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: weave-parent
-  namespace: sys-weave
+  name: cert-manager-parent
+  namespace: sys-cert-manager
 spec:
   interval: 10s
   maxHistory: 1
@@ -17,16 +17,16 @@ spec:
     mode: enabled
   chart:
     spec:
-      chart: ./k8s/platform-charts/03_weave
+      chart: ./k8s/platform-charts/03_cert-manager
       sourceRef:
         kind: GitRepository
         name: my-cluster
         namespace: flux-system
   values:
     {{- if eq .Values.env "prod" }}
-    chartVersion: "4.0.36" # https://github.com/weaveworks/weave-gitops/pkgs/container/charts%2Fweave-gitops
+    chartVersion: "v1.17.1"
     {{- else if eq .Values.env "stage" }}
-    chartVersion: "4.0.36"
+    chartVersion: "v1.17.1"
     {{- else }}
     {{- fail "The env value must be either 'prod' or 'stage'" }}
     {{- end }}

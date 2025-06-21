@@ -16,7 +16,7 @@ metadata:
   namespace: sys-capacitor
 spec:
   targetNamespace: sys-capacitor
-  interval: 1h
+  interval: 10s
   retryInterval: 2m
   timeout: 5m
   wait: true

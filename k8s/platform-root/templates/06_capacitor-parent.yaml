@@ -15,9 +15,12 @@ spec:
   maxHistory: 1
   driftDetection:
     mode: enabled
+  dependsOn:
+    - name: linkerd-control-plane
+      namespace: sys-linkerd
   chart:
     spec:
-      chart: ./k8s/platform-charts/03_capacitor
+      chart: ./k8s/platform-charts/06_capacitor
       sourceRef:
         kind: GitRepository
         name: my-cluster
