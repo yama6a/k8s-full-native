@@ -184,5 +184,3 @@ echo "Replacing pods that are not meshed with Linkerd..."
 for ns in flux-system sys-cert-manager sys-sealed-secrets; do
   kubectl delete pods --all -n $ns
 done
-
-# todo: test deleting deployments from helm (e.g. weave) and kustomize (e.g. capacitor) and see if flux will re-create them
