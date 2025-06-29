@@ -1,3 +1,3 @@
 apiVersion: v2
-name: RookCephParent
+name: RookParent
 version: 0.0.1

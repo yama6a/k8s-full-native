@@ -26,12 +26,18 @@ spec:
         name: rook-release
         namespace: sys-rook
   values:
+    logLevel: 4 # 0-5, where 5 is trace level logging
     operatorNamespace: sys-rook
     operator:
       tolerations:
         - key: "node-role.kubernetes.io/master"
           effect: "NoSchedule"
       allowUnsupported: true
+    monitoring:
+      enabled: false # todo: set to true once we have prometheys or mimir
+    csi:
+      serviceMonitor:
+        enabled: false # todo: set to true once we have prometheys or mimir
     cluster:
       spec:
         dataDirHostPath: /var/lib/rook
