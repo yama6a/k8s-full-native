@@ -11,8 +11,9 @@ minikube config set driver vfkit
 # todo: When trying this on a raspi cluster, need to isntall csi-hostpath-driver and volumesnapshots manually
 minikube unpause || minikube start \
 --addons=metrics-server \
---addons=csi-hostpath-driver \
---addons=volumesnapshots \
+#--addons=csi-hostpath-driver \
+#--addons=volumesnapshots \
+--nodes=3 \
 --cpus=8 \
 --memory=8192 \
 --disk-size=150g \
@@ -22,3 +23,9 @@ minikube unpause || minikube start \
 --ports=30080:30080 \
 --ports=30443:30443 \
 --subnet=172.17.128.0/17
+
+# rook/ceph requires a directory to store data
+# probably not needed? Keep commecnted out for noe and see if it works anyways.
+#for node in minikube minikube-m02 minikube-m03; do
+#  minikube ssh -n "$node" -- "sudo mkdir -p /var/lib/rook && sudo chown root:root /var/lib/rook && sudo chmod 755 /var/lib/rook"
+#done
