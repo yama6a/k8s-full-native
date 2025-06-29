@@ -24,9 +24,9 @@ spec:
         namespace: flux-system
   values:
     {{- if eq .Values.env "prod" }}
-    chartVersion: "2.14.1" # https://artifacthub.io/packages/helm/fluxcd-community/flux2
+    chartVersion: "2.16.1" # https://artifacthub.io/packages/helm/fluxcd-community/flux2
     {{- else if eq .Values.env "stage" }}
-    chartVersion: "2.14.1" # update also in bootstrap script
+    chartVersion: "2.16.1" # update also in bootstrap script
     {{- else }}
     {{- fail "The env value must be either 'prod' or 'stage'" }}
     {{- end }}

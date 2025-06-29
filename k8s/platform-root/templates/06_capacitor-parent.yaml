@@ -29,7 +29,7 @@ spec:
     {{- if eq .Values.env "prod" }}
     ociImageVersion: "0.4.8" # https://github.com/gimlet-io/capacitor/releases
     {{- else if eq .Values.env "stage" }}
-    ociImageVersion: "0.4.8"
+    ociImageVersion: "0.4.8" # https://github.com/gimlet-io/capacitor/releases
     {{- else }}
     {{- fail "The env value must be either 'prod' or 'stage'" }}
     {{- end }}

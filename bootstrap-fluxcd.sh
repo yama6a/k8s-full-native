@@ -66,7 +66,7 @@ helm repo update sealed-secrets > /dev/null
 # to ensure that the Sealed Secrets helm-chart is overridden by the flux-managed one and sealed-secrets is thus managed by flux in the end.
 helm install sealed-secrets sealed-secrets/sealed-secrets \
 --namespace sys-sealed-secrets --create-namespace \
---version 2.17.1  > /dev/null
+--version 2.17.3  > /dev/null
 
 # Wait for sealed-secrets-controller to be ready (we need the CRDs to be installed at least)
 set +x
@@ -114,7 +114,7 @@ helm repo update fluxcd > /dev/null
 # to ensure that the Flux helm-chart is overridden by the flux-managed one and flux is thus managed by itself in the end.
 helm install fluxcd fluxcd/flux2 \
 --namespace flux-system --create-namespace \
---version 2.14.1 \
+--version 2.16.1 \
 --set imageReflectionController.create=false \
 --set imageAutomationController.create=false \
 --set notificationController.create=false > /dev/null
