@@ -19,7 +19,7 @@ minikube unpause || minikube start \
 --disk-size=150g \
 --delete-on-failure=true \
 --driver=vfkit \
---kubernetes-version=v1.31.4 \
+--kubernetes-version=v1.33.2 \
 --ports=30080:30080 \
 --ports=30443:30443 \
 --subnet=172.17.128.0/17

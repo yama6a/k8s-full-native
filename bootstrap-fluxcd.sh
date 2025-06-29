@@ -23,36 +23,33 @@ fi
 set -ux
 
 # cache required images on host (avoid re-downloading them in minikube saves traffic and time)
-# See unnecessary pulls in events: kubectl get events --all-namespaces --field-selector reason=Pulling -o wide
+# See unnecessary pulls in events: kubectl get events --all-namespaces --field-selector reason=Pulling -o custom-columns=Message:.message --no-headers | grep -o '".*"' | grep -v 'metrics-server' | sort -u
 # Minikube pre-installs the metrics-server before we can warm up the Container-VM here, so no need to list it here; it's small so, whatever ¯\_(ツ)_/¯
 # Todo: renovate the versions below?
 images=(
-  "cr.l5d.io/linkerd/proxy:edge-24.11.8"
-  "cr.l5d.io/linkerd/controller:edge-24.11.8"
-  "cr.l5d.io/linkerd/policy-controller:edge-24.11.8"
-  "cr.l5d.io/linkerd/proxy-init:v2.4.2"
-  "quay.io/jetstack/cert-manager-controller:v1.17.1"
-  "quay.io/jetstack/cert-manager-webhook:v1.17.1"
-  "quay.io/jetstack/cert-manager-cainjector:v1.17.1"
-  "quay.io/jetstack/cert-manager-startupapicheck:v1.17.1"
-  "ghcr.io/fluxcd/source-controller:v1.4.1"
-  "ghcr.io/fluxcd/helm-controller:v1.1.0"
-  "ghcr.io/fluxcd/flux-cli:v2.4.0"
-  "ghcr.io/fluxcd/kustomize-controller:v1.4.0"
-  "docker.io/bitnami/sealed-secrets-controller:0.28.0"
-  "registry.k8s.io/ingress-nginx/kube-webhook-certgen:v1.4.0@sha256:44d1d0e9f19c63f58b380c5fddaca7cf22c7cee564adeff365225a5df5ef3334"
-  "registry.k8s.io/ingress-nginx/controller:1.12.0@sha256:42b3f0e5d0846876b1791cd3afeb5f1cbbe4259d6f35651dcc1b5c980925379c"
-  "docker.l5d.io/buoyantio/emojivoto-web:v11"
+  "cr.l5d.io/linkerd/controller:edge-25.4.4"
+  "cr.l5d.io/linkerd/policy-controller:edge-25.4.4"
+  "cr.l5d.io/linkerd/proxy:edge-25.4.4"
+  "docker.io/bitnami/sealed-secrets-controller:0.30.0"
+  "docker.l5d.io/buoyantio/emojivoto-emoji-svc:v11"
   "docker.l5d.io/buoyantio/emojivoto-voting-svc:v11"
+  "docker.l5d.io/buoyantio/emojivoto-web:v11"
+  "ghcr.io/fluxcd/flux-cli:v2.6.2"
+  "ghcr.io/fluxcd/helm-controller:v1.3.0"
+  "ghcr.io/fluxcd/kustomize-controller:v1.6.0"
+  "ghcr.io/fluxcd/source-controller:v1.6.1"
   "ghcr.io/gimlet-io/capacitor:v0.4.8"
   "ghcr.io/weaveworks/wego-app:v0.38.0"
+  "quay.io/jetstack/cert-manager-cainjector:v1.18.1"
+  "quay.io/jetstack/cert-manager-controller:v1.18.1"
+  "quay.io/jetstack/cert-manager-startupapicheck:v1.18.1"
+  "quay.io/jetstack/cert-manager-webhook:v1.18.1"
+  "registry.k8s.io/ingress-nginx/controller:v1.12.3@sha256:ac444cd9515af325ba577b596fe4f27a34be1aa330538e8b317ad9d6c8fb94ee"
+  "registry.k8s.io/ingress-nginx/kube-webhook-certgen:v1.5.4@sha256:7a38cf0f8480775baaee71ab519c7465fd1dfeac66c421f28f087786e631456e"
 )
 for img in "${images[@]}"; do
   (
-    if ! docker image inspect "$img" > /dev/null 2>&1; then
-      docker pull "$img"
-    fi
-    minikube image load "$img"
+    docker image inspect "$img" > /dev/null 2>&1 || docker pull "$img" > /dev/null && minikube image load "$img" > /dev/null 2>&1
   ) &
 done
 wait
@@ -66,7 +63,7 @@ helm repo update sealed-secrets > /dev/null
 # to ensure that the Sealed Secrets helm-chart is overridden by the flux-managed one and sealed-secrets is thus managed by flux in the end.
 helm install sealed-secrets sealed-secrets/sealed-secrets \
 --namespace sys-sealed-secrets --create-namespace \
---version 2.17.1  > /dev/null
+--version 2.17.3  > /dev/null
 
 # Wait for sealed-secrets-controller to be ready (we need the CRDs to be installed at least)
 set +x
@@ -114,7 +111,7 @@ helm repo update fluxcd > /dev/null
 # to ensure that the Flux helm-chart is overridden by the flux-managed one and flux is thus managed by itself in the end.
 helm install fluxcd fluxcd/flux2 \
 --namespace flux-system --create-namespace \
---version 2.14.1 \
+--version 2.16.1 \
 --set imageReflectionController.create=false \
 --set imageAutomationController.create=false \
 --set notificationController.create=false > /dev/null
@@ -165,6 +162,7 @@ echo "$(minikube ip) web.app-demo.local" >> "$TMP_FILE"
 sudo cp "$TMP_FILE" /etc/hosts
 
 echo -e "Waiting for helmreleases to be ready..."
+sleep 5
 i=0
 while [ $i -lt 300 ]; do
   output=$(kubectl get helmrelease -A --no-headers)
@@ -176,7 +174,7 @@ while [ $i -lt 300 ]; do
   i=$((i+1))
 done
 if [ $i -eq 300 ]; then
-  echo "Error: sealed-secrets-controller not ready after 5 minutes"
+  echo -e "\nError: sealed-secrets-controller not ready after 5 minutes"
   exit 1
 fi
 
