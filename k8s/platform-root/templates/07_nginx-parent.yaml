@@ -14,6 +14,12 @@ metadata:
 spec:
   interval: 10s
   maxHistory: 1
+  install:
+    remediation:
+      retries: 10
+  upgrade:
+    remediation:
+      retries: 10
   driftDetection:
     mode: enabled
   dependsOn:
@@ -28,9 +34,9 @@ spec:
         namespace: flux-system
   values:
     {{- if eq .Values.env "prod" }}
-    chartVersion: "4.10.0" # https://artifacthub.io/packages/helm/ingress-nginx/ingress-nginx
+    chartVersion: "4.12.3" # https://artifacthub.io/packages/helm/ingress-nginx/ingress-nginx
     {{- else if eq .Values.env "stage" }}
-    chartVersion: "4.10.0"
+    chartVersion: "4.12.3" # https://artifacthub.io/packages/helm/ingress-nginx/ingress-nginx
     {{- else }}
     {{- fail "The env value must be either 'prod' or 'stage'" }}
     {{- end }}

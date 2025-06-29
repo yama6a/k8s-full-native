@@ -16,6 +16,12 @@ spec:
   releaseName: nginx
   interval: 10s
   maxHistory: 1
+  install:
+    remediation:
+      retries: 10
+  upgrade:
+    remediation:
+      retries: 10
   driftDetection:
     mode: enabled
   chart:

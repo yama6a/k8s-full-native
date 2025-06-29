@@ -6,12 +6,18 @@ metadata:
 spec:
   interval: 10s
   maxHistory: 1
+  install:
+    remediation:
+      retries: 10
+  upgrade:
+    remediation:
+      retries: 10
   driftDetection:
     mode: enabled
   dependsOn:
     - name: linkerd-control-plane
       namespace: sys-linkerd
-    - name: nginx-parent
+    - name: nginx
       namespace: sys-nginx
   chart:
     spec:
