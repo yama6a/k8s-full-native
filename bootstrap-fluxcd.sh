@@ -49,10 +49,7 @@ images=(
 )
 for img in "${images[@]}"; do
   (
-    if ! docker image inspect "$img" > /dev/null 2>&1; then
-      docker pull "$img"
-    fi
-    minikube image load "$img"
+    docker image inspect "$img" > /dev/null 2>&1 || docker pull "$img" > /dev/null && minikube image load "$img" > /dev/null 2>&1
   ) &
 done
 wait
