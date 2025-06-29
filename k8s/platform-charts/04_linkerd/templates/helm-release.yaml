@@ -16,6 +16,12 @@ metadata:
 spec:
   interval: 10s
   maxHistory: 1
+  install:
+    remediation:
+      retries: 10
+  upgrade:
+    remediation:
+      retries: 10
   driftDetection:
     mode: enabled
   releaseName: linkerd-crds
@@ -38,6 +44,12 @@ spec:
   interval: 10s
   timeout: 10m # -- Increase the install/upgrade timeout to 10 minutes (images are rather large and can take a while to pull)
   maxHistory: 1
+  install:
+    remediation:
+      retries: 10
+  upgrade:
+    remediation:
+      retries: 10
   driftDetection:
     mode: enabled
   releaseName: linkerd-control-plane
