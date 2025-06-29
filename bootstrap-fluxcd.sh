@@ -165,6 +165,7 @@ echo "$(minikube ip) web.app-demo.local" >> "$TMP_FILE"
 sudo cp "$TMP_FILE" /etc/hosts
 
 echo -e "Waiting for helmreleases to be ready..."
+sleep 5
 i=0
 while [ $i -lt 300 ]; do
   output=$(kubectl get helmrelease -A --no-headers)
