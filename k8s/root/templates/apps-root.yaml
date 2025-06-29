@@ -11,7 +11,7 @@ spec:
   dependsOn:
     - name: linkerd-control-plane
       namespace: sys-linkerd
-    - name: nginx
+    - name: nginx-parent
       namespace: sys-nginx
   chart:
     spec:

@@ -1,0 +1,65 @@
+# This helm hook ensures that the nginx admission-controller is ready before proceeding with the installation or upgrade of other resources that depend on it.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: wait-sa
+  namespace: sys-nginx
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: wait-endpoints-role
+  namespace: sys-nginx
+rules:
+  - apiGroups: [""]
+    resources: ["endpoints"]
+    verbs: ["get","list","watch"]
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: wait-endpoints-binding
+  namespace: sys-nginx
+subjects:
+  - kind: ServiceAccount
+    name: wait-sa
+    namespace: sys-nginx
+roleRef:
+  kind: Role
+  name: wait-endpoints-role
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: wait-for-nginx-admission
+  annotations:
+    helm.sh/hook: post-install,post-upgrade
+    helm.sh/hook-weight: "-5"
+    helm.sh/hook-delete-policy: hook-succeeded
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      serviceAccountName: wait-sa
+      restartPolicy: Never
+      containers:
+        - name: wait
+          image: bitnami/kubectl:latest
+          command:
+            - sh
+            - -c
+            - |
+              for i in $(seq 1 120); do
+                if kubectl get endpoints/nginx-ingress-nginx-controller-admission \
+                   -n sys-nginx \
+                   -o jsonpath='{.subsets[*].addresses}' | grep -q '[^ ]'; then
+                  break
+                fi
+                sleep 1
+              done
+              if [ $i -ge 120 ]; then
+                echo "Timed out waiting for admission endpoints"
+                exit 1
+              fi
+              sleep 10
