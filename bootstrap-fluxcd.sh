@@ -47,13 +47,21 @@ images=(
   "registry.k8s.io/ingress-nginx/controller:v1.12.3@sha256:ac444cd9515af325ba577b596fe4f27a34be1aa330538e8b317ad9d6c8fb94ee"
   "registry.k8s.io/ingress-nginx/kube-webhook-certgen:v1.5.4@sha256:7a38cf0f8480775baaee71ab519c7465fd1dfeac66c421f28f087786e631456e"
 )
-for img in "${images[@]}"; do
-  (
-    docker image inspect "$img" > /dev/null 2>&1 || docker pull "$img" > /dev/null && minikube image load "$img" > /dev/null 2>&1
-  ) &
-done
-wait
-
+ # ensure images exist on host machine before loading them into minikube
+#for img in "${images[@]}"; do
+#  (
+#    docker image inspect "$img" > /dev/null 2>&1 || docker pull "$img" > /dev/null 2>&1
+#  )
+#done
+#
+## Load images into minikube in parallel
+#for img in "${images[@]}"; do
+#  (
+#     minikube image load "$img" > /dev/null
+#  ) &
+#done
+#wait
+#exit 0
 # Install sealed secrets controller (needed for FluxCD's secret containing the github API key)
 # More sophisticated config will be applied once FluxCD takes over (see flux-apps/platform/02_sealed_secrets/helm-release.yaml)
 # Todo: renovate the versions below as well as the ones in the helm-release.yaml
@@ -128,6 +136,7 @@ BRANCH=$(cat ./k8s/platform-charts/01_fluxcd/templates/git-repo.yaml | grep bran
 
 if [ "$BRANCH" = "main" ]; then
   echo -e "Error: cannot commit to branch 'main'.\nPlease change the branch in ./k8s/platform-charts/01_fluxcd/templates/git-repo.yaml to a different branch."
+  exit 1
 fi
 
 echo -e "Branch to commit to: \033[32m$BRANCH\033[0m"
