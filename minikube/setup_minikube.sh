@@ -14,10 +14,8 @@ minikube unpause || minikube start \
 --memory=8192 \
 --disk-size=150g \
 --delete-on-failure=true \
---driver=vfkit \
---kubernetes-version=v1.33.2 \
---ports=30080:30080 \
---ports=30443:30443 \
+--driver=docker \
+--kubernetes-version=v1.33.1 \
 --subnet=172.17.128.0/17
 #--addons=csi-hostpath-driver \
 #--addons=volumesnapshots \
