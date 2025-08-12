@@ -174,7 +174,7 @@ while [ $i -lt 300 ]; do
   i=$((i+1))
 done
 if [ $i -eq 300 ]; then
-  echo -e "\nError: sealed-secrets-controller not ready after 5 minutes"
+  echo -e "\nError: Not all HelmReleases are ready after 5 minutes."
   exit 1
 fi
 
