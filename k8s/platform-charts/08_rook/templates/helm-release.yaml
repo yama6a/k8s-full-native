@@ -39,31 +39,3 @@ spec:
         replicas: 2
       plugin:
         replicas: 2
-
-      # preferred-only node affinity for the provisioner (soft preferences)
-      provisionerNodeAffinity:
-        preferredDuringSchedulingIgnoredDuringExecution:
-          - weight: 100
-            preference:
-              matchExpressions:
-                - key: "kubernetes.io/hostname"
-                  operator: "Exists"
-          - weight: 100
-            preference:
-              matchExpressions:
-                - key: "topology.kubernetes.io/zone"
-                  operator: "Exists"
-
-      # apply same preferred-only node affinity for the plugin (soft preferences)
-      pluginNodeAffinity:
-        preferredDuringSchedulingIgnoredDuringExecution:
-          - weight: 100
-            preference:
-              matchExpressions:
-                - key: "kubernetes.io/hostname"
-                  operator: "Exists"
-          - weight: 100
-            preference:
-              matchExpressions:
-                - key: "topology.kubernetes.io/zone"
-                  operator: "Exists"

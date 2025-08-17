@@ -31,6 +31,7 @@ images=(
   "cr.l5d.io/linkerd/policy-controller:edge-25.4.4"
   "cr.l5d.io/linkerd/proxy:edge-25.4.4"
   "docker.io/bitnami/sealed-secrets-controller:0.30.0"
+  "docker.io/rook/ceph:v1.17.7"
   "docker.l5d.io/buoyantio/emojivoto-emoji-svc:v11"
   "docker.l5d.io/buoyantio/emojivoto-voting-svc:v11"
   "docker.l5d.io/buoyantio/emojivoto-web:v11"
