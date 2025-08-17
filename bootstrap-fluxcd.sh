@@ -23,15 +23,13 @@ fi
 set -ux
 
 # cache required images on host (avoid re-downloading them in minikube saves traffic and time)
-# See unnecessary pulls in events: kubectl get events --all-namespaces --field-selector reason=Pulling -o custom-columns=Message:.message --no-headers | grep -o '".*"' | grep -v 'metrics-server' | sort -u
-# Minikube pre-installs the metrics-server before we can warm up the Container-VM here, so no need to list it here; it's small so, whatever ¯\_(ツ)_/¯
+# See unnecessary pulls in events: kubectl get events --all-namespaces --field-selector reason=Pulling -o custom-columns=Message:.message --no-headers | grep -o '".*"' | grep -vE 'metrics-server|kindnetd|kube-vip' | sort -u
+# Minikube pre-installs the metrics-server, kindnetd and kind-vip before we can warm up the Container-VM here, we can't prevent those to be pulled because it happens before we can run this script.
 # Todo: renovate the versions below?
 images=(
   "cr.l5d.io/linkerd/controller:edge-25.4.4"
   "cr.l5d.io/linkerd/policy-controller:edge-25.4.4"
   "cr.l5d.io/linkerd/proxy:edge-25.4.4"
-  "docker.io/kindest/kindnetd:v20250512-df8de77b"
-  "ghcr.io/kube-vip/kube-vip:v0.9.1"
   "docker.io/bitnami/sealed-secrets-controller:0.30.0"
   "docker.l5d.io/buoyantio/emojivoto-emoji-svc:v11"
   "docker.l5d.io/buoyantio/emojivoto-voting-svc:v11"
@@ -46,6 +44,7 @@ images=(
   "quay.io/jetstack/cert-manager-controller:v1.18.1"
   "quay.io/jetstack/cert-manager-startupapicheck:v1.18.1"
   "quay.io/jetstack/cert-manager-webhook:v1.18.1"
+  "registry.k8s.io/ingress-nginx/kube-webhook-certgen:v1.5.4@sha256:7a38cf0f8480775baaee71ab519c7465fd1dfeac66c421f28f087786e631456e"
   "registry.k8s.io/ingress-nginx/controller:v1.12.3@sha256:ac444cd9515af325ba577b596fe4f27a34be1aa330538e8b317ad9d6c8fb94ee"
   "registry.k8s.io/ingress-nginx/kube-webhook-certgen:v1.5.4@sha256:7a38cf0f8480775baaee71ab519c7465fd1dfeac66c421f28f087786e631456e"
 )
