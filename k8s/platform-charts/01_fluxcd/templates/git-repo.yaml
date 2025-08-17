@@ -7,6 +7,6 @@ spec:
   interval: 10s
   url: "https://github.com/yama6a/k8s-full-native.git"
   ref:
-    branch: cnpg
+    branch: issue-27-rook-ceph
   secretRef:
     name: github-api-key
