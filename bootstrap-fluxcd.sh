@@ -19,6 +19,9 @@ if [ -z "${WEAVE_ADMIN_PASSWORD}" ]; then
   exit 1
 fi
 
+# give all three nodes time to start up properly
+sleep 30
+
 # Bash strict mode (second half)
 set -ux
 
@@ -55,7 +58,6 @@ images=(
   "registry.k8s.io/sig-storage/csi-provisioner:v5.2.0"
   "registry.k8s.io/sig-storage/csi-resizer:v1.13.2"
   "registry.k8s.io/sig-storage/csi-snapshotter:v8.2.1"
-
 )
 # pull images
 for img in "${images[@]}"; do

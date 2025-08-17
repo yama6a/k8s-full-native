@@ -1,3 +1,11 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: local-path-wffc
+provisioner: rancher.io/local-path
+volumeBindingMode: WaitForFirstConsumer
+reclaimPolicy: Delete
+---
 apiVersion: ceph.rook.io/v1
 kind: CephCluster
 metadata:
@@ -15,16 +23,16 @@ spec:
     useAllNodes: false
     storageClassDeviceSets:
       - name: set1
-        count: 1
-        portable: true
+        count: 3                      # create 3 OSDs (aim for one per node)
+        portable: false               # local PVs: OSDs are tied to the node with the PV
         tuneFastDeviceClass: false
         volumeClaimTemplates:
           - metadata:
               name: data
             spec:
-              storageClassName: local-path
+              storageClassName: local-path-wffc
               accessModes: ["ReadWriteOnce"]
               volumeMode: Block
               resources:
                 requests:
-                  storage: 10Gi
+                  storage: 20Gi
