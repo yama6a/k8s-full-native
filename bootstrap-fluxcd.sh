@@ -30,6 +30,11 @@ images=(
   "cr.l5d.io/linkerd/controller:edge-25.4.4"
   "cr.l5d.io/linkerd/policy-controller:edge-25.4.4"
   "cr.l5d.io/linkerd/proxy:edge-25.4.4"
+  "cr.l5d.io/linkerd/controller:edge-24.11.8"
+  "cr.l5d.io/linkerd/policy-controller:edge-24.11.8"
+  "cr.l5d.io/linkerd/proxy:edge-24.11.8"
+  "docker.io/kindest/kindnetd:v20250512-df8de77b"
+  "ghcr.io/kube-vip/kube-vip:v0.9.1"
   "docker.io/bitnami/sealed-secrets-controller:0.30.0"
   "docker.l5d.io/buoyantio/emojivoto-emoji-svc:v11"
   "docker.l5d.io/buoyantio/emojivoto-voting-svc:v11"
@@ -47,9 +52,18 @@ images=(
   "registry.k8s.io/ingress-nginx/controller:v1.12.3@sha256:ac444cd9515af325ba577b596fe4f27a34be1aa330538e8b317ad9d6c8fb94ee"
   "registry.k8s.io/ingress-nginx/kube-webhook-certgen:v1.5.4@sha256:7a38cf0f8480775baaee71ab519c7465fd1dfeac66c421f28f087786e631456e"
 )
+# pull images
 for img in "${images[@]}"; do
   (
-    docker image inspect "$img" > /dev/null 2>&1 || docker pull "$img" > /dev/null && minikube image load "$img" > /dev/null 2>&1
+    docker image inspect "$img" > /dev/null 2>&1 || docker pull "$img" > /dev/null
+  ) &
+done
+wait
+
+# load images into minikube
+for img in "${images[@]}"; do
+  (
+    minikube image load "$img" > /dev/null 2>&1
   ) &
 done
 wait
@@ -176,7 +190,7 @@ while [ $i -lt 300 ]; do
   i=$((i+1))
 done
 if [ $i -eq 300 ]; then
-  echo -e "\nError: sealed-secrets-controller not ready after 5 minutes"
+  echo -e "\nError: Not all HelmReleases are ready after 5 minutes."
   exit 1
 fi
 
@@ -184,3 +198,6 @@ echo "Replacing pods that are not meshed with Linkerd..."
 for ns in flux-system sys-cert-manager sys-sealed-secrets; do
   kubectl delete pods --all -n $ns
 done
+
+echo "Port-Forwarding the nginx ingress controller to localhost:8080..."
+kubectl port-forward -n sys-nginx svc/nginx-ingress-nginx-controller 8080:80
