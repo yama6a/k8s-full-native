@@ -37,12 +37,12 @@ spec:
     versions:
       crdChart: "2025.6.4"          # helm repo add linkerd-edge https://helm.linkerd.io/edge && helm search repo linkerd
       controlPlaneChart: "2025.6.4" # helm repo add linkerd-edge https://helm.linkerd.io/edge && helm search repo linkerd
-      linkerd: "edge-25.4.4"        # https://linkerd.io/releases/ (use edge-* release that corresponds to the latest version-* tag, and NOT the LATEST edge-* release available on github)
+      linkerd: "edge-25.4.4"        # https://linkerd.io/releases/ (use edge-* release that corresponds to the latest version-* tag, and NOT the LATEST edge-*
     {{- else if eq .Values.env "stage" }}
     versions:
       crdChart: "2025.6.4"          # helm repo add linkerd-edge https://helm.linkerd.io/edge && helm search repo linkerd
       controlPlaneChart: "2025.6.4" # helm repo add linkerd-edge https://helm.linkerd.io/edge && helm search repo linkerd
-      linkerd: "edge-25.4.4"        # https://linkerd.io/releases/ (use edge-* release that corresponds to the latest version-* tag, and NOT the LATEST edge-* release available on github)
+      linkerd: "edge-25.4.4"        # https://linkerd.io/releases/ (use edge-* release that corresponds to the latest version-* tag, and NOT the LATEST edge-*
     {{- else }}
     {{- fail "The env value must be either 'prod' or 'stage'" }}
     {{- end }}
