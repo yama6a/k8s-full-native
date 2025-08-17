@@ -23,8 +23,8 @@ fi
 set -ux
 
 # cache required images on host (avoid re-downloading them in minikube saves traffic and time)
-# See unnecessary pulls in events: kubectl get events --all-namespaces --field-selector reason=Pulling -o custom-columns=Message:.message --no-headers | grep -o '".*"' | grep -v 'metrics-server' | sort -u
-# Minikube pre-installs the metrics-server before we can warm up the Container-VM here, so no need to list it here; it's small so, whatever ¯\_(ツ)_/¯
+# See unnecessary pulls in events: kubectl get events --all-namespaces --field-selector reason=Pulling -o custom-columns=Message:.message --no-headers | grep -o '".*"' | grep -vE 'metrics-server|kindnetd|kube-vip' | sort -u
+# Minikube pre-installs the metrics-server, kindnetd and kind-vip before we can warm up the Container-VM here, we can't prevent those to be pulled because it happens before we can run this script.
 # Todo: renovate the versions below?
 images=(
   "cr.l5d.io/linkerd/controller:edge-25.4.4"
@@ -44,12 +44,22 @@ images=(
   "quay.io/jetstack/cert-manager-controller:v1.18.1"
   "quay.io/jetstack/cert-manager-startupapicheck:v1.18.1"
   "quay.io/jetstack/cert-manager-webhook:v1.18.1"
+  "registry.k8s.io/ingress-nginx/kube-webhook-certgen:v1.5.4@sha256:7a38cf0f8480775baaee71ab519c7465fd1dfeac66c421f28f087786e631456e"
   "registry.k8s.io/ingress-nginx/controller:v1.12.3@sha256:ac444cd9515af325ba577b596fe4f27a34be1aa330538e8b317ad9d6c8fb94ee"
   "registry.k8s.io/ingress-nginx/kube-webhook-certgen:v1.5.4@sha256:7a38cf0f8480775baaee71ab519c7465fd1dfeac66c421f28f087786e631456e"
 )
+# pull images
 for img in "${images[@]}"; do
   (
-    docker image inspect "$img" > /dev/null 2>&1 || docker pull "$img" > /dev/null && minikube image load "$img" > /dev/null 2>&1
+    docker image inspect "$img" > /dev/null 2>&1 || docker pull "$img" > /dev/null
+  ) &
+done
+wait
+
+# load images into minikube
+for img in "${images[@]}"; do
+  (
+    minikube image load "$img" > /dev/null 2>&1
   ) &
 done
 wait
@@ -154,15 +164,17 @@ sleep 5;
 echo -e "applying flux-apps..."
 kubectl apply -f ./k8s/HelmRelease-prod.yaml
 
-echo -e "updating hosts file..."
-TMP_FILE="$(mktemp)"
-sudo cp /etc/hosts /etc/hosts.backup.$(date +%Y%m%d-%H%M%S)
-grep -v "web\.app-demo\.local" /etc/hosts > "$TMP_FILE"
-echo "$(minikube ip) web.app-demo.local" >> "$TMP_FILE"
-sudo cp "$TMP_FILE" /etc/hosts
+echo -e "checking hosts file..."
+if ! grep -qF -- '127.0.0.1 web.app-demo.local' /etc/hosts; then
+  echo "hosts file needs updating, adding web.app-demo.local -> 127.0.0.1"
+  {
+    grep -vF -- 'web.app-demo.local' /etc/hosts || true
+    printf '%s\n' '127.0.0.1 web.app-demo.local'
+  } | sudo tee /etc/hosts >/dev/null
+fi
 
 echo -e "Waiting for helmreleases to be ready..."
-sleep 5
+sleep 10
 i=0
 while [ $i -lt 300 ]; do
   output=$(kubectl get helmrelease -A --no-headers)
@@ -174,7 +186,7 @@ while [ $i -lt 300 ]; do
   i=$((i+1))
 done
 if [ $i -eq 300 ]; then
-  echo -e "\nError: sealed-secrets-controller not ready after 5 minutes"
+  echo -e "\nError: Not all HelmReleases are ready after 5 minutes."
   exit 1
 fi
 
@@ -182,3 +194,6 @@ echo "Replacing pods that are not meshed with Linkerd..."
 for ns in flux-system sys-cert-manager sys-sealed-secrets; do
   kubectl delete pods --all -n $ns
 done
+
+echo "Port-Forwarding the nginx ingress controller to localhost:8080..."
+kubectl port-forward -n sys-nginx svc/nginx-ingress-nginx-controller 8080:80
