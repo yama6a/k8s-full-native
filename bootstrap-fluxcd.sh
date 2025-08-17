@@ -154,15 +154,17 @@ sleep 5;
 echo -e "applying flux-apps..."
 kubectl apply -f ./k8s/HelmRelease-prod.yaml
 
-echo -e "updating hosts file..."
-TMP_FILE="$(mktemp)"
-sudo cp /etc/hosts /etc/hosts.backup.$(date +%Y%m%d-%H%M%S)
-grep -v "web\.app-demo\.local" /etc/hosts > "$TMP_FILE"
-echo "$(minikube ip) web.app-demo.local" >> "$TMP_FILE"
-sudo cp "$TMP_FILE" /etc/hosts
+echo -e "checking hosts file..."
+if ! grep -qF -- '127.0.0.1 web.app-demo.local' /etc/hosts; then
+  echo "hosts file needs updating, adding web.app-demo.local -> 127.0.0.1"
+  {
+    grep -vF -- 'web.app-demo.local' /etc/hosts || true
+    printf '%s\n' '127.0.0.1 web.app-demo.local'
+  } | sudo tee /etc/hosts >/dev/null
+fi
 
 echo -e "Waiting for helmreleases to be ready..."
-sleep 5
+sleep 10
 i=0
 while [ $i -lt 300 ]; do
   output=$(kubectl get helmrelease -A --no-headers)
