@@ -8,7 +8,7 @@ metadata:
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: nginx-parent
+  name: rook-parent
   namespace: sys-rook
 spec:
   interval: 10s
