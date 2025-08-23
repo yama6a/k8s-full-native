@@ -19,6 +19,9 @@ if [ -z "${WEAVE_ADMIN_PASSWORD}" ]; then
   exit 1
 fi
 
+# give all three nodes time to start up properly
+sleep 30
+
 # Bash strict mode (second half)
 set -ux
 
@@ -31,6 +34,7 @@ images=(
   "cr.l5d.io/linkerd/policy-controller:edge-25.4.4"
   "cr.l5d.io/linkerd/proxy:edge-25.4.4"
   "docker.io/bitnami/sealed-secrets-controller:0.30.0"
+  "docker.io/rook/ceph:v1.17.7"
   "docker.l5d.io/buoyantio/emojivoto-emoji-svc:v11"
   "docker.l5d.io/buoyantio/emojivoto-voting-svc:v11"
   "docker.l5d.io/buoyantio/emojivoto-web:v11"
@@ -40,13 +44,20 @@ images=(
   "ghcr.io/fluxcd/source-controller:v1.6.1"
   "ghcr.io/gimlet-io/capacitor:v0.4.8"
   "ghcr.io/weaveworks/wego-app:v0.38.0"
+  "quay.io/ceph/ceph:v18.2.4"
+  "quay.io/cephcsi/cephcsi:v3.14.2"
   "quay.io/jetstack/cert-manager-cainjector:v1.18.1"
   "quay.io/jetstack/cert-manager-controller:v1.18.1"
   "quay.io/jetstack/cert-manager-startupapicheck:v1.18.1"
   "quay.io/jetstack/cert-manager-webhook:v1.18.1"
+  "rancher/local-path-provisioner:v0.0.32"
   "registry.k8s.io/ingress-nginx/kube-webhook-certgen:v1.5.4@sha256:7a38cf0f8480775baaee71ab519c7465fd1dfeac66c421f28f087786e631456e"
   "registry.k8s.io/ingress-nginx/controller:v1.12.3@sha256:ac444cd9515af325ba577b596fe4f27a34be1aa330538e8b317ad9d6c8fb94ee"
-  "registry.k8s.io/ingress-nginx/kube-webhook-certgen:v1.5.4@sha256:7a38cf0f8480775baaee71ab519c7465fd1dfeac66c421f28f087786e631456e"
+  "registry.k8s.io/sig-storage/csi-attacher:v4.8.1"
+  "registry.k8s.io/sig-storage/csi-node-driver-registrar:v2.13.0"
+  "registry.k8s.io/sig-storage/csi-provisioner:v5.2.0"
+  "registry.k8s.io/sig-storage/csi-resizer:v1.13.2"
+  "registry.k8s.io/sig-storage/csi-snapshotter:v8.2.1"
 )
 # pull images
 for img in "${images[@]}"; do

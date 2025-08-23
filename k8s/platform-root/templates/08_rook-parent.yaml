@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: sys-rook
+  annotations:
+    linkerd.io/inject: "enabled"
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: rook-parent
+  namespace: sys-rook
+spec:
+  interval: 10s
+  maxHistory: 1
+  install:
+    remediation:
+      retries: 10
+  upgrade:
+    remediation:
+      retries: 10
+  driftDetection:
+    mode: enabled
+  dependsOn:
+    - name: linkerd-control-plane
+      namespace: sys-linkerd
+  chart:
+    spec:
+      chart: ./k8s/platform-charts/08_rook
+      sourceRef:
+        kind: GitRepository
+        name: my-cluster
+        namespace: flux-system
+  values:
+    {{- if eq .Values.env "prod" }}
+    chartVersion: "v1.17.5" # helm repo add rook https://charts.rook.io/release && helm search repo rook
+    {{- else if eq .Values.env "stage" }}
+    chartVersion: "v1.17.5" # helm repo add rook https://charts.rook.io/release && helm search repo rook
+    {{- else }}
+    {{- fail "The env value must be either 'prod' or 'stage'" }}
+    {{- end }}
