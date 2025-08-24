@@ -19,64 +19,22 @@ if [ -z "${WEAVE_ADMIN_PASSWORD}" ]; then
   exit 1
 fi
 
-# Bash strict mode (second half)
-set -ux
-
-# cache required images on host (avoid re-downloading them in minikube saves traffic and time)
-# See unnecessary pulls in events: kubectl get events --all-namespaces --field-selector reason=Pulling -o custom-columns=Message:.message --no-headers | grep -o '".*"' | grep -vE 'metrics-server|kindnetd|kube-vip' | sort -u
-# Minikube pre-installs the metrics-server, kindnetd and kind-vip before we can warm up the Container-VM here, we can't prevent those to be pulled because it happens before we can run this script.
-# Todo: renovate the versions below?
-images=(
-  "cr.l5d.io/linkerd/controller:edge-25.4.4"
-  "cr.l5d.io/linkerd/policy-controller:edge-25.4.4"
-  "cr.l5d.io/linkerd/proxy:edge-25.4.4"
-  "docker.io/bitnami/sealed-secrets-controller:0.30.0"
-  "docker.l5d.io/buoyantio/emojivoto-emoji-svc:v11"
-  "docker.l5d.io/buoyantio/emojivoto-voting-svc:v11"
-  "docker.l5d.io/buoyantio/emojivoto-web:v11"
-  "ghcr.io/fluxcd/flux-cli:v2.6.2"
-  "ghcr.io/fluxcd/helm-controller:v1.3.0"
-  "ghcr.io/fluxcd/kustomize-controller:v1.6.0"
-  "ghcr.io/fluxcd/source-controller:v1.6.1"
-  "ghcr.io/gimlet-io/capacitor:v0.4.8"
-  "ghcr.io/weaveworks/wego-app:v0.38.0"
-  "quay.io/jetstack/cert-manager-cainjector:v1.18.1"
-  "quay.io/jetstack/cert-manager-controller:v1.18.1"
-  "quay.io/jetstack/cert-manager-startupapicheck:v1.18.1"
-  "quay.io/jetstack/cert-manager-webhook:v1.18.1"
-  "registry.k8s.io/ingress-nginx/kube-webhook-certgen:v1.5.4@sha256:7a38cf0f8480775baaee71ab519c7465fd1dfeac66c421f28f087786e631456e"
-  "registry.k8s.io/ingress-nginx/controller:v1.12.3@sha256:ac444cd9515af325ba577b596fe4f27a34be1aa330538e8b317ad9d6c8fb94ee"
-  "registry.k8s.io/ingress-nginx/kube-webhook-certgen:v1.5.4@sha256:7a38cf0f8480775baaee71ab519c7465fd1dfeac66c421f28f087786e631456e"
-)
-# pull images
-for img in "${images[@]}"; do
-  (
-    docker image inspect "$img" > /dev/null 2>&1 || docker pull "$img" > /dev/null
-  ) &
-done
-wait
-
-# load images into minikube
-for img in "${images[@]}"; do
-  (
-    minikube image load "$img" > /dev/null 2>&1
-  ) &
-done
-wait
-
 # Install sealed secrets controller (needed for FluxCD's secret containing the github API key)
 # More sophisticated config will be applied once FluxCD takes over (see flux-apps/platform/02_sealed_secrets/helm-release.yaml)
 # Todo: renovate the versions below as well as the ones in the helm-release.yaml
+# Todo: backup the sealed-secrets-controller's private key and public key on disk,
+#       and find a way for it to never delete it in the cluster no matter what, even if the HelmRelease is deleted.
+#       And research and document how to recover the cluster's private key from a backup.
+echo "Installing Sealed Secrets..."
 helm repo add sealed-secrets https://bitnami-labs.github.io/sealed-secrets > /dev/null
 helm repo update sealed-secrets > /dev/null
 # "sealed-secrets" must match the metadata.name in k8s/platform-charts/02_sealed_secrets/helm-release.yaml
 # to ensure that the Sealed Secrets helm-chart is overridden by the flux-managed one and sealed-secrets is thus managed by flux in the end.
 helm install sealed-secrets sealed-secrets/sealed-secrets \
 --namespace sys-sealed-secrets --create-namespace \
---version 2.17.3  > /dev/null
+--version 2.17.3  > /dev/null || true
 
 # Wait for sealed-secrets-controller to be ready (we need the CRDs to be installed at least)
-set +x
 echo "Waiting for sealed-secrets-controller to be ready..."
 i=0; while [ $i -lt 60 ] && [ -z "$(kubectl get endpoints sealed-secrets -n sys-sealed-secrets -o jsonpath='{.subsets[0].addresses[0].ip}' 2>/dev/null)" ]; do
   sleep 2;
@@ -89,12 +47,6 @@ fi;
 
 sleep 10;
 
-
-# Todo: backup the sealed-secrets-controller's private key and public key on disk,
-#       and find a way for it to never delete it in the cluster no matter what, even if the HelmRelease is deleted.
-#       And research and document how to recover the cluster's private key from a backup.
-
-
 echo "Preparing Sealed Secrets for FluxCD and Weave GitOps..."
 # Create Sealed Secret (replace GITHUB token with yours from the environment)
 sed "s/GITHUB_API_KEY/$GITHUB_API_KEY/g" ./bootstrap-github-api-secret-template.yaml \
@@ -103,8 +55,6 @@ sed "s/GITHUB_API_KEY/$GITHUB_API_KEY/g" ./bootstrap-github-api-secret-template.
 
 export HASH=$(echo -n "$WEAVE_ADMIN_PASSWORD" | gitops get bcrypt-hash)
 export ESCAPED_HASH=$(printf '%s' "$HASH" | sed 's/[\/&$]/\\&/g')
-
-set -x
 
 sed "s/WEAVE_ADMIN_PASSWORD/$ESCAPED_HASH/g" ./bootstrap-weave-admin-secret-template.yaml \
     | kubeseal --controller-namespace sys-sealed-secrets --controller-name sealed-secrets --format yaml \
@@ -115,6 +65,7 @@ sed "s/WEAVE_ADMIN_PASSWORD/$ESCAPED_HASH/g" ./bootstrap-weave-admin-secret-temp
 # https://artifacthub.io/packages/helm/fluxcd-community/flux2
 # More sophisticated config will be applied automatically, once FluxCD takes over (see flux-apps/platform/01_fluxcd/helm-release.yaml)
 # Todo: renovate the versions below as well as the ones in the helm-release.yaml
+echo "Installing FluxCD..."
 helm repo add fluxcd https://fluxcd-community.github.io/helm-charts > /dev/null
 helm repo update fluxcd > /dev/null
 # "fluxcd" must match the spec.releaseName in k8s/platform-charts/01_fluxcd/helm-release.yaml
@@ -124,12 +75,11 @@ helm install fluxcd fluxcd/flux2 \
 --version 2.16.1 \
 --set imageReflectionController.create=false \
 --set imageAutomationController.create=false \
---set notificationController.create=false > /dev/null
+--set notificationController.create=false > /dev/null  || true
 
+echo "Adding GitHub repo and applying Sealed Secrets too bootstrap FluxCD..."
 kubectl apply -f ./k8s/platform-charts/01_fluxcd/templates/gh-api-key-sealedsecret.yaml > /dev/null
 kubectl apply -f ./k8s/platform-charts/01_fluxcd/templates/git-repo.yaml > /dev/null
-
-set +x
 
 echo "Now you need to git-commit and push all changes (including the sealed secrets) to your git repository."
 echo "CAUTION: the branch you want to work on must be specified in /k8s/platform-charts/01_fluxcd/templates/git-repo.yaml"
@@ -165,13 +115,28 @@ echo -e "applying flux-apps..."
 kubectl apply -f ./k8s/HelmRelease-prod.yaml
 
 echo -e "checking hosts file..."
-if ! grep -qF -- '127.0.0.1 web.app-demo.local' /etc/hosts; then
-  echo "hosts file needs updating, adding web.app-demo.local -> 127.0.0.1"
+IP='127.0.0.1'
+HOSTS=( "web.app-demo.local" )
+MISSING=0
+# check if all HOSTS are already set and do nothing if so
+for h in "${HOSTS[@]}"; do
+  if ! grep -Fxq -- "$IP $h" /etc/hosts; then
+    MISSING=1
+    break
+  fi
+done
+
+# if any HOST is missing, add them to /etc/hosts
+if [ "$MISSING" -eq 1 ]; then
+  sudo cp -a /etc/hosts "/etc/hosts.backup.$(date '+%F.%H-%M-%S')"
   {
-    grep -vF -- 'web.app-demo.local' /etc/hosts || true
-    printf '%s\n' '127.0.0.1 web.app-demo.local'
+    grep -vF -f <(printf '%s\n' "${HOSTS[@]}") /etc/hosts || true
+    for h in "${HOSTS[@]}"; do
+      printf '%s\n' "$IP $h"
+    done
   } | sudo tee /etc/hosts >/dev/null
 fi
+
 
 echo -e "Waiting for helmreleases to be ready..."
 sleep 10
