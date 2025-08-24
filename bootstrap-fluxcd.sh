@@ -64,9 +64,15 @@ for img in "${images[@]}"; do
 done
 wait
 
+set +x
+
 # Install sealed secrets controller (needed for FluxCD's secret containing the github API key)
 # More sophisticated config will be applied once FluxCD takes over (see flux-apps/platform/02_sealed_secrets/helm-release.yaml)
 # Todo: renovate the versions below as well as the ones in the helm-release.yaml
+# Todo: backup the sealed-secrets-controller's private key and public key on disk,
+#       and find a way for it to never delete it in the cluster no matter what, even if the HelmRelease is deleted.
+#       And research and document how to recover the cluster's private key from a backup.
+echo "Installing Sealed Secrets..."
 helm repo add sealed-secrets https://bitnami-labs.github.io/sealed-secrets > /dev/null
 helm repo update sealed-secrets > /dev/null
 # "sealed-secrets" must match the metadata.name in k8s/platform-charts/02_sealed_secrets/helm-release.yaml
@@ -76,7 +82,6 @@ helm install sealed-secrets sealed-secrets/sealed-secrets \
 --version 2.17.3  > /dev/null
 
 # Wait for sealed-secrets-controller to be ready (we need the CRDs to be installed at least)
-set +x
 echo "Waiting for sealed-secrets-controller to be ready..."
 i=0; while [ $i -lt 60 ] && [ -z "$(kubectl get endpoints sealed-secrets -n sys-sealed-secrets -o jsonpath='{.subsets[0].addresses[0].ip}' 2>/dev/null)" ]; do
   sleep 2;
@@ -89,12 +94,6 @@ fi;
 
 sleep 10;
 
-
-# Todo: backup the sealed-secrets-controller's private key and public key on disk,
-#       and find a way for it to never delete it in the cluster no matter what, even if the HelmRelease is deleted.
-#       And research and document how to recover the cluster's private key from a backup.
-
-
 echo "Preparing Sealed Secrets for FluxCD and Weave GitOps..."
 # Create Sealed Secret (replace GITHUB token with yours from the environment)
 sed "s/GITHUB_API_KEY/$GITHUB_API_KEY/g" ./bootstrap-github-api-secret-template.yaml \
@@ -103,8 +102,6 @@ sed "s/GITHUB_API_KEY/$GITHUB_API_KEY/g" ./bootstrap-github-api-secret-template.
 
 export HASH=$(echo -n "$WEAVE_ADMIN_PASSWORD" | gitops get bcrypt-hash)
 export ESCAPED_HASH=$(printf '%s' "$HASH" | sed 's/[\/&$]/\\&/g')
-
-set -x
 
 sed "s/WEAVE_ADMIN_PASSWORD/$ESCAPED_HASH/g" ./bootstrap-weave-admin-secret-template.yaml \
     | kubeseal --controller-namespace sys-sealed-secrets --controller-name sealed-secrets --format yaml \
@@ -115,6 +112,7 @@ sed "s/WEAVE_ADMIN_PASSWORD/$ESCAPED_HASH/g" ./bootstrap-weave-admin-secret-temp
 # https://artifacthub.io/packages/helm/fluxcd-community/flux2
 # More sophisticated config will be applied automatically, once FluxCD takes over (see flux-apps/platform/01_fluxcd/helm-release.yaml)
 # Todo: renovate the versions below as well as the ones in the helm-release.yaml
+echo "Installing FluxCD..."
 helm repo add fluxcd https://fluxcd-community.github.io/helm-charts > /dev/null
 helm repo update fluxcd > /dev/null
 # "fluxcd" must match the spec.releaseName in k8s/platform-charts/01_fluxcd/helm-release.yaml
@@ -126,10 +124,9 @@ helm install fluxcd fluxcd/flux2 \
 --set imageAutomationController.create=false \
 --set notificationController.create=false > /dev/null
 
+echo "Adding GitHub repo and applying Sealed Secrets too bootstrap FluxCD..."
 kubectl apply -f ./k8s/platform-charts/01_fluxcd/templates/gh-api-key-sealedsecret.yaml > /dev/null
 kubectl apply -f ./k8s/platform-charts/01_fluxcd/templates/git-repo.yaml > /dev/null
-
-set +x
 
 echo "Now you need to git-commit and push all changes (including the sealed secrets) to your git repository."
 echo "CAUTION: the branch you want to work on must be specified in /k8s/platform-charts/01_fluxcd/templates/git-repo.yaml"
@@ -165,13 +162,28 @@ echo -e "applying flux-apps..."
 kubectl apply -f ./k8s/HelmRelease-prod.yaml
 
 echo -e "checking hosts file..."
-if ! grep -qF -- '127.0.0.1 web.app-demo.local' /etc/hosts; then
-  echo "hosts file needs updating, adding web.app-demo.local -> 127.0.0.1"
+IP='127.0.0.1'
+HOSTS=( "web.app-demo.local" "longhorn.platform-demo.local" )
+MISSING=0
+# check if all HOSTS are already set and do nothing if so
+for h in "${HOSTS[@]}"; do
+  if ! grep -Fxq -- "$IP $h" /etc/hosts; then
+    MISSING=1
+    break
+  fi
+done
+
+# if any HOST is missing, add them to /etc/hosts
+if [ "$MISSING" -eq 1 ]; then
+  sudo cp -a /etc/hosts "/etc/hosts.backup.$(date '+%F.%H-%M-%S')"
   {
-    grep -vF -- 'web.app-demo.local' /etc/hosts || true
-    printf '%s\n' '127.0.0.1 web.app-demo.local'
+    grep -vF -f <(printf '%s\n' "${HOSTS[@]}") /etc/hosts || true
+    for h in "${HOSTS[@]}"; do
+      printf '%s\n' "$IP $h"
+    done
   } | sudo tee /etc/hosts >/dev/null
 fi
+
 
 echo -e "Waiting for helmreleases to be ready..."
 sleep 10

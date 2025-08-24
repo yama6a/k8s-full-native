@@ -1,0 +1,53 @@
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: HelmRepository
+metadata:
+  labels:
+    app.kubernetes.io/component: storage
+    app.kubernetes.io/created-by: longhorn-gitops-cli
+    app.kubernetes.io/name: longhorn-chart
+    app.kubernetes.io/part-of: longhorn
+  name: longhorn
+  namespace: sys-longhorn
+spec:
+  type: helm
+  url: https://charts.longhorn.io
+  interval: 1h
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: longhorn
+  namespace: sys-longhorn
+spec:
+  interval: 10s
+  maxHistory: 1
+  install:
+    remediation:
+      retries: 10
+  upgrade:
+    remediation:
+      retries: 10
+  driftDetection:
+    mode: enabled
+  chart:
+    spec:
+      chart: longhorn
+      version: {{ .Values.chartVersion }}
+      sourceRef:
+        kind: HelmRepository
+        name: longhorn
+        namespace: sys-longhorn
+  values:
+    longhornDriver:
+      log:
+        format: json # [Options: "plain", "json"] (default: "plain")
+    persistence:
+      defaultClass: true
+      defaultClassReplicaCount: 3
+      defaultFsType: ext4
+    ingress:
+        enabled: true
+        host: longhorn.platform-demo.local
+        annotations:
+          kubernetes.io/ingress.class: nginx
+          nginx.ingress.kubernetes.io/service-upstream: "true" # needed to funnel ingress-traffic via mTLS'ed linkerd
