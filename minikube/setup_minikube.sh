@@ -34,7 +34,6 @@ fi
 # Info:
 # --addons=metrics-server       # is needed for the metrics server to be installed in the cluster, which is required by the linkerd control plane.
 # --nodes=3                     # is needed to have enough nodes for rook/ceph to be installed and distribute/replicate storage, which is required by the CNPG operator.
-# --ha                          # makes all nodes control-plane nodes, so that we can have a prod-like highly available cluster.
 # --cpus=3                      # if we have 3 nodes. With 1 node, use 8 or more.
 # --memory=4096                 # if we have 3 nodes. With 1 node, use 8GB or more.
 # --disk-size=100g              # not sure yet why we need this much disk space. But I remember that this was on purpose, even wayy before we touched rook/ceph. Re-visit this later.
@@ -50,7 +49,6 @@ fi
 minikube start \
 --profile="${CLUSTER_NAME}" \
 --nodes 3 \
---ha \
 --cpus=3 \
 --memory=4096 \
 --disk-size=100g \

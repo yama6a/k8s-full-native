@@ -19,9 +19,6 @@ if [ -z "${WEAVE_ADMIN_PASSWORD}" ]; then
   exit 1
 fi
 
-# Bash strict mode (second half)
-set -ux
-
 # cache required images on host (avoid re-downloading them in minikube saves traffic and time)
 # See unnecessary pulls in events: kubectl get events --all-namespaces --field-selector reason=Pulling -o custom-columns=Message:.message --no-headers | grep -o '".*"' | grep -vE 'metrics-server|kindnetd|kube-vip' | sort -u
 # Minikube pre-installs the metrics-server, kindnetd and kind-vip before we can warm up the Container-VM here, we can't prevent those to be pulled because it happens before we can run this script.
@@ -57,11 +54,11 @@ images=(
   "quay.io/jetstack/cert-manager-webhook:v1.18.1"
   "registry.k8s.io/ingress-nginx/kube-webhook-certgen:v1.5.4@sha256:7a38cf0f8480775baaee71ab519c7465fd1dfeac66c421f28f087786e631456e"
   "registry.k8s.io/ingress-nginx/controller:v1.12.3@sha256:ac444cd9515af325ba577b596fe4f27a34be1aa330538e8b317ad9d6c8fb94ee"
-  "registry.k8s.io/ingress-nginx/kube-webhook-certgen:v1.5.4@sha256:7a38cf0f8480775baaee71ab519c7465fd1dfeac66c421f28f087786e631456e"
 )
 # pull images
 for img in "${images[@]}"; do
   (
+    echo "Pulling $img"
     docker image inspect "$img" > /dev/null 2>&1 || docker pull "$img" > /dev/null
   ) &
 done
@@ -70,12 +67,11 @@ wait
 # load images into minikube
 for img in "${images[@]}"; do
   (
-    minikube image load "$img" > /dev/null 2>&1
+    echo "Loading image into minikube: $img"
+    minikube -p kfn image load "$img" > /dev/null 2>&1
   ) &
 done
 wait
-
-set +x
 
 # Install sealed secrets controller (needed for FluxCD's secret containing the github API key)
 # More sophisticated config will be applied once FluxCD takes over (see flux-apps/platform/02_sealed_secrets/helm-release.yaml)
