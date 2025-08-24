@@ -2,8 +2,9 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: sys-longhorn
-  annotations:
-    linkerd.io/inject: "enabled"
+# Do not add the linkerd annotation to longhorn's namespace. It breaks the instance manager pods.
+# annotations:
+#   linkerd.io/inject: "enabled"
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
