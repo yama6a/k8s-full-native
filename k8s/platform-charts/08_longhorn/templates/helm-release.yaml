@@ -1,17 +1,11 @@
 apiVersion: source.toolkit.fluxcd.io/v1beta2
 kind: HelmRepository
 metadata:
-  labels:
-    app.kubernetes.io/component: storage
-    app.kubernetes.io/created-by: longhorn-gitops-cli
-    app.kubernetes.io/name: longhorn-chart
-    app.kubernetes.io/part-of: longhorn
   name: longhorn
   namespace: sys-longhorn
 spec:
-  type: helm
-  url: https://charts.longhorn.io
   interval: 1h
+  url: https://charts.longhorn.io
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
